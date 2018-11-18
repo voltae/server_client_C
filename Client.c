@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>     // provides socket
 #include <errno.h>          // provides errno
-#include <stdio.h>
+#include <stdio.h>          // provides the printf()
 #include <stdlib.h>         // provides exit(), EXIT_FAILURE
 
 void usage(char* message, char* progname);
