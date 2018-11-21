@@ -20,7 +20,17 @@
 #include <stdlib.h>         // provides exit(), EXIT_FAILURE
 #include <string.h>         // provide strerror(), strlen()
 
-void usage(char* message, char* progname);
+/**
+ * @brief is called upon failure and displays a userinfor to stderr and terminates afterwards.
+ * @param stream the  stream to write the usage information to (e.g., stdout
+                   or stderr).
+ * @param cmnd a string containing the name of the executable  (i.e.,  the
+                   contents of argv[0]).
+ * @param exitcode the  exit code to be used in the call to exit(3) for termi-
+                   nating the program.
+
+ */
+void usage(FILE* stream, const char* cmnd, int exitcode);
 
 void errorMessage(char* userMessage, char* errorMessage, char* progname);
 
@@ -35,6 +45,7 @@ int main (int argc, char* argv[]) {
     if (fd_socket < 0) {
         errorMessage("Could not create a socket: ", strerror(errno), progname);
     }
+
 }
 
     // try to connect to the server

@@ -13,19 +13,21 @@ customPort=$((uid+5000))
 #  simple_message_server -p port [-h]
 /usr/local/bin/simple_message_server --port $customPort &
 
-# 3. Start the protocolling v... verbose,
-/usr/sbin/tcpdump -i lo -w port $customPort protocol.pcap &
+# 3. Start the protocolling v... verbose, -i lo (localhost) port
+/usr/sbin/tcpdump -vv -i lo port $customPort -w protocol_port_$customPort.pcap &
 
 # 4. Start the client and send date
 # simple_message_client  -s server -p port -u user [-i image URL] -m message [-v] [-h]
 /usr/local/bin/simple_message_client --server $address \
-    --port $customPort --user $username \
-    --message 'Hello to the Server on the other side'
+    --port $customPort --user $username  -v\
+    --message "<p>Hello to the Server on the other side<br>\
+    Time is now: <strong>$(date)</strong>"
 
  # aufruf mit image
  /usr/local/bin/simple_message_client --server $address \
     --port $customPort --user $username \
-    --message 'Dieser Post hat sogar ein Image' -i 'https://upload.wikimedia.org/wikipedia/en/7/78/Small_scream.png'
+    --message "Dieser Post hat den Zeitstempel: <strong>$(date)</strong>\
+     und sogar ein Image" -i 'https://upload.wikimedia.org/wikipedia/en/7/78/Small_scream.png'
 
 # 5. Stop Server
 # pgrep is an acronym that stands for "Process-ID Global Regular Expressions Print"
@@ -41,3 +43,6 @@ echo $pidtcpdump
 sleep 5
 kill $pidserver
 kill $pidtcpdump
+
+# 7. Convert the file to something readable
+/usr/sbin/tcpdump -vv -X -s0 -rprotocol_port_$customPort.pcap > protocol_port_$customPort_readable.txt
