@@ -1,0 +1,513 @@
+17:28:08.261209 IP6 localhost6.localdomain6.60524 > localhost6.localdomain6.7329: Flags [S], seq 3284740418, win 43690, options [mss 65476,sackOK,TS val 1668662223 ecr 0,nop,wscale 7], length 0
+17:28:08.261222 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60524: Flags [R.], seq 0, ack 3284740419, win 0, length 0
+17:28:08.261277 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [S], seq 3521346353, win 43690, options [mss 65495,sackOK,TS val 3652264690 ecr 0,nop,wscale 7], length 0
+17:28:08.261290 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [S.], seq 2929041020, ack 3521346354, win 43690, options [mss 65495,sackOK,TS val 3652264690 ecr 3652264690,nop,wscale 7], length 0
+17:28:08.261303 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652264690 ecr 3652264690], length 0
+17:28:08.261469 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652264690 ecr 3652264690], length 51
+17:28:08.261478 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652264690 ecr 3652264690], length 0
+17:28:08.261496 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652264690 ecr 3652264690], length 0
+17:28:08.266149 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1:6, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264690], length 5
+17:28:08.266165 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 6, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266203 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 6:10, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 4
+17:28:08.266213 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266252 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 10:37, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 27
+17:28:08.266262 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 37, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266293 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 37:44, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 7
+17:28:08.266303 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 44, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266333 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 44:51, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 7
+17:28:08.266342 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 51, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266372 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 51:61, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 10
+17:28:08.266381 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 61, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266412 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 61:63, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 2
+17:28:08.266421 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266519 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 63:590, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 527
+17:28:08.266531 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 590, win 350, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266580 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 590:648, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 58
+17:28:08.266590 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 648, win 350, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266621 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 648:827, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 179
+17:28:08.266630 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 827, win 359, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266661 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 827:1193, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 366
+17:28:08.266670 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1193, win 367, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266702 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1193:1247, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 54
+17:28:08.266711 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1247, win 367, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266742 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1247:1323, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 76
+17:28:08.266751 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1323, win 367, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266781 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1323:1324, ack 53, win 342, options [nop,nop,TS val 3652264695 ecr 3652264695], length 1
+17:28:08.266790 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1324, win 367, options [nop,nop,TS val 3652264695 ecr 3652264695], length 0
+17:28:08.266908 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1324:1336, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264695], length 12
+17:28:08.266920 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1336, win 367, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.266955 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1336:1344, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 8
+17:28:08.266964 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1344, win 367, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.266995 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1344:1345, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 1
+17:28:08.267004 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 1345, win 367, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.267085 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 1345:4029, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 2684
+17:28:08.267097 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 4029, win 1390, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.267142 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 4029:4166, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 137
+17:28:08.267151 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 4166, win 1432, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.267184 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 4166:4287, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 121
+17:28:08.267203 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 4287, win 1432, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.267228 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 4287:4292, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 5
+17:28:08.267246 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 4292, win 1432, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.267271 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [P.], seq 4292:4294, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 2
+17:28:08.267288 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 4294, win 1432, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.267484 IP localhost.localdomain.7329 > localhost.localdomain.42666: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:08.267492 IP localhost.localdomain.42666 > localhost.localdomain.7329: Flags [.], ack 4295, win 1432, options [nop,nop,TS val 3652264696 ecr 3652264696], length 0
+17:28:14.581248 IP6 localhost6.localdomain6.60528 > localhost6.localdomain6.7329: Flags [S], seq 1182767494, win 43690, options [mss 65476,sackOK,TS val 1668668540 ecr 0,nop,wscale 7], length 0
+17:28:14.581262 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60528: Flags [R.], seq 0, ack 1182767495, win 0, length 0
+17:28:14.581327 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [S], seq 1891739649, win 43690, options [mss 65495,sackOK,TS val 3652271007 ecr 0,nop,wscale 7], length 0
+17:28:14.581342 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [S.], seq 2612674341, ack 1891739650, win 43690, options [mss 65495,sackOK,TS val 3652271007 ecr 3652271007,nop,wscale 7], length 0
+17:28:14.581356 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652271007 ecr 3652271007], length 0
+17:28:14.581539 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652271007 ecr 3652271007], length 51
+17:28:14.581549 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652271007 ecr 3652271007], length 0
+17:28:14.581570 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652271007 ecr 3652271007], length 0
+17:28:14.583649 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1:7, ack 53, win 342, options [nop,nop,TS val 3652271009 ecr 3652271007], length 6
+17:28:14.583668 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 7, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 0
+17:28:14.583711 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 7:8, ack 53, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 1
+17:28:14.583904 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 8, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 0
+17:28:14.583949 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 8:10, ack 53, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 2
+17:28:14.583961 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 0
+17:28:14.584006 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 10:27, ack 53, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 17
+17:28:14.584017 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 27, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 0
+17:28:14.584054 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 27:59, ack 53, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 32
+17:28:14.584065 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 59, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 0
+17:28:14.584102 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 59:62, ack 53, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 3
+17:28:14.584113 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 62, win 342, options [nop,nop,TS val 3652271009 ecr 3652271009], length 0
+17:28:14.584148 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 62:63, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271009], length 1
+17:28:14.584159 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584274 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 63:1033, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 970
+17:28:14.584288 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1033, win 357, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584346 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1033:1204, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 171
+17:28:14.584358 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1204, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584396 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1204:1279, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 75
+17:28:14.584407 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1279, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584443 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1279:1315, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 36
+17:28:14.584454 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1315, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584489 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1315:1318, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 3
+17:28:14.584500 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1318, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584535 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1318:1324, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 6
+17:28:14.584546 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1324, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584735 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1324:1327, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 3
+17:28:14.584749 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1327, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584789 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1327:1339, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 12
+17:28:14.584800 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1339, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584935 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1339:1343, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 4
+17:28:14.584948 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1343, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.584985 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1343:1344, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 1
+17:28:14.584996 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1344, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.585031 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1344:1345, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 1
+17:28:14.585052 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 1345, win 372, options [nop,nop,TS val 3652271010 ecr 3652271010], length 0
+17:28:14.585144 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 1345:3639, ack 53, win 342, options [nop,nop,TS val 3652271010 ecr 3652271010], length 2294
+17:28:14.585157 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 3639, win 1395, options [nop,nop,TS val 3652271011 ecr 3652271010], length 0
+17:28:14.585208 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 3639:4183, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 544
+17:28:14.585219 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4183, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585258 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 4183:4251, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 68
+17:28:14.585278 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4251, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585308 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 4251:4285, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 34
+17:28:14.585328 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4285, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585357 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 4285:4289, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 4
+17:28:14.585377 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4289, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585406 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 4289:4290, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 1
+17:28:14.585426 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4290, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585455 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 4290:4292, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 2
+17:28:14.585475 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4292, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585503 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [P.], seq 4292:4294, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 2
+17:28:14.585524 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4294, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585871 IP localhost.localdomain.7329 > localhost.localdomain.42670: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:14.585880 IP localhost.localdomain.42670 > localhost.localdomain.7329: Flags [.], ack 4295, win 1431, options [nop,nop,TS val 3652271011 ecr 3652271011], length 0
+17:28:18.853389 IP6 localhost6.localdomain6.60532 > localhost6.localdomain6.7329: Flags [S], seq 3541252978, win 43690, options [mss 65476,sackOK,TS val 1668672809 ecr 0,nop,wscale 7], length 0
+17:28:18.853405 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60532: Flags [R.], seq 0, ack 3541252979, win 0, length 0
+17:28:18.853473 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [S], seq 3468149370, win 43690, options [mss 65495,sackOK,TS val 3652275277 ecr 0,nop,wscale 7], length 0
+17:28:18.853489 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [S.], seq 517167779, ack 3468149371, win 43690, options [mss 65495,sackOK,TS val 3652275277 ecr 3652275277,nop,wscale 7], length 0
+17:28:18.853504 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652275277 ecr 3652275277], length 0
+17:28:18.853866 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652275277 ecr 3652275277], length 51
+17:28:18.853877 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652275277 ecr 3652275277], length 0
+17:28:18.853899 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652275277 ecr 3652275277], length 0
+17:28:18.856248 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1:5, ack 53, win 342, options [nop,nop,TS val 3652275279 ecr 3652275277], length 4
+17:28:18.856268 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 5, win 342, options [nop,nop,TS val 3652275279 ecr 3652275279], length 0
+17:28:18.856312 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 5:6, ack 53, win 342, options [nop,nop,TS val 3652275279 ecr 3652275279], length 1
+17:28:18.856323 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 6, win 342, options [nop,nop,TS val 3652275279 ecr 3652275279], length 0
+17:28:18.856360 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 6:10, ack 53, win 342, options [nop,nop,TS val 3652275279 ecr 3652275279], length 4
+17:28:18.856372 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652275279 ecr 3652275279], length 0
+17:28:18.856416 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 10:43, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275279], length 33
+17:28:18.856428 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 43, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856464 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 43:57, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 14
+17:28:18.856475 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 57, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856512 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 57:61, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 4
+17:28:18.856523 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 61, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856558 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 61:62, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 1
+17:28:18.856569 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 62, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856604 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 62:63, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 1
+17:28:18.856614 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856734 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 63:388, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 325
+17:28:18.856747 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 388, win 350, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856803 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 388:519, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 131
+17:28:18.856815 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 519, win 359, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856852 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 519:568, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 49
+17:28:18.856863 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 568, win 359, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856899 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 568:1190, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 622
+17:28:18.856910 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1190, win 368, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856949 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1190:1279, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 89
+17:28:18.856960 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1279, win 368, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.856995 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1279:1307, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 28
+17:28:18.857006 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1307, win 368, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.857041 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1307:1316, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 9
+17:28:18.857052 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1316, win 368, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.857087 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1316:1317, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 1
+17:28:18.857098 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1317, win 368, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.857133 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1317:1322, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 5
+17:28:18.857144 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1322, win 368, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.857178 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1322:1324, ack 53, win 342, options [nop,nop,TS val 3652275280 ecr 3652275280], length 2
+17:28:18.857189 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1324, win 368, options [nop,nop,TS val 3652275280 ecr 3652275280], length 0
+17:28:18.857415 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1324:1339, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275280], length 15
+17:28:18.857442 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1339, win 368, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.857586 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1339:1341, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 2
+17:28:18.857611 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1341, win 368, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.857644 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1341:1344, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 3
+17:28:18.857665 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1344, win 368, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.857695 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1344:1345, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 1
+17:28:18.857715 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 1345, win 368, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.857803 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 1345:2471, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 1126
+17:28:18.857816 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 2471, win 386, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.857865 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 2471:3894, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 1423
+17:28:18.857876 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 3894, win 1409, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.857917 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 3894:4268, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 374
+17:28:18.857928 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 4268, win 1431, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.857965 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 4268:4290, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 22
+17:28:18.857986 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 4290, win 1431, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.858015 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 4290:4291, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 1
+17:28:18.858035 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 4291, win 1431, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.858063 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 4291:4292, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 1
+17:28:18.858084 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 4292, win 1431, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.858112 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [P.], seq 4292:4294, ack 53, win 342, options [nop,nop,TS val 3652275281 ecr 3652275281], length 2
+17:28:18.858132 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 4294, win 1431, options [nop,nop,TS val 3652275281 ecr 3652275281], length 0
+17:28:18.858487 IP localhost.localdomain.7329 > localhost.localdomain.42674: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652275282 ecr 3652275281], length 0
+17:28:18.858496 IP localhost.localdomain.42674 > localhost.localdomain.7329: Flags [.], ack 4295, win 1431, options [nop,nop,TS val 3652275282 ecr 3652275282], length 0
+17:28:21.332881 IP6 localhost6.localdomain6.60536 > localhost6.localdomain6.7329: Flags [S], seq 1072046181, win 43690, options [mss 65476,sackOK,TS val 1668675288 ecr 0,nop,wscale 7], length 0
+17:28:21.332893 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60536: Flags [R.], seq 0, ack 1072046182, win 0, length 0
+17:28:21.332953 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [S], seq 3860618947, win 43690, options [mss 65495,sackOK,TS val 3652277755 ecr 0,nop,wscale 7], length 0
+17:28:21.332967 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [S.], seq 252936239, ack 3860618948, win 43690, options [mss 65495,sackOK,TS val 3652277755 ecr 3652277755,nop,wscale 7], length 0
+17:28:21.332979 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652277755 ecr 3652277755], length 0
+17:28:21.333149 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652277755 ecr 3652277755], length 51
+17:28:21.333158 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652277755 ecr 3652277755], length 0
+17:28:21.333178 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652277755 ecr 3652277755], length 0
+17:28:21.335293 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1:8, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277755], length 7
+17:28:21.335311 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 8, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335351 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 8:10, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 2
+17:28:21.335362 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335404 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 10:29, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 19
+17:28:21.335414 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 29, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335448 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 29:45, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 16
+17:28:21.335458 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 45, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335490 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 45:50, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 5
+17:28:21.335499 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 50, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335531 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 50:53, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 3
+17:28:21.335541 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335573 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 53:57, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 4
+17:28:21.335582 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 57, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335635 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 57:63, ack 53, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 6
+17:28:21.335646 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652277757 ecr 3652277757], length 0
+17:28:21.335896 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 63:448, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277757], length 385
+17:28:21.335910 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 448, win 350, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336119 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 448:875, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 427
+17:28:21.336132 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 875, win 359, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336170 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 875:1146, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 271
+17:28:21.336180 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1146, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336214 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1146:1219, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 73
+17:28:21.336224 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1219, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336256 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1219:1314, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 95
+17:28:21.336265 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1314, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336297 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1314:1320, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 6
+17:28:21.336307 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1320, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336339 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1320:1321, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 1
+17:28:21.336348 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1321, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336380 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1321:1323, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 2
+17:28:21.336389 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1323, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336421 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1323:1324, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 1
+17:28:21.336430 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1324, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336616 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1324:1337, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 13
+17:28:21.336629 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1337, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336666 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1337:1343, ack 53, win 342, options [nop,nop,TS val 3652277758 ecr 3652277758], length 6
+17:28:21.336676 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1343, win 367, options [nop,nop,TS val 3652277758 ecr 3652277758], length 0
+17:28:21.336709 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1343:1345, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277758], length 2
+17:28:21.336820 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 1345, win 367, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.336909 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 1345:2806, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 1461
+17:28:21.336922 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 2806, win 1390, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.336967 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 2806:3329, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 523
+17:28:21.336978 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 3329, win 1413, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337013 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 3329:3661, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 332
+17:28:21.337022 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 3661, win 1436, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337224 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 3661:3740, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 79
+17:28:21.337250 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 3740, win 1436, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337277 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 3740:4063, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 323
+17:28:21.337287 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 4063, win 1459, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337321 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 4063:4256, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 193
+17:28:21.337330 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 4256, win 1481, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337363 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 4256:4273, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 17
+17:28:21.337382 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 4273, win 1481, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337409 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 4273:4287, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 14
+17:28:21.337427 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 4287, win 1481, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337453 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [P.], seq 4287:4294, ack 53, win 342, options [nop,nop,TS val 3652277759 ecr 3652277759], length 7
+17:28:21.337471 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 4294, win 1481, options [nop,nop,TS val 3652277759 ecr 3652277759], length 0
+17:28:21.337800 IP localhost.localdomain.7329 > localhost.localdomain.42678: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652277760 ecr 3652277759], length 0
+17:28:21.337809 IP localhost.localdomain.42678 > localhost.localdomain.7329: Flags [.], ack 4295, win 1481, options [nop,nop,TS val 3652277760 ecr 3652277760], length 0
+17:28:23.780705 IP6 localhost6.localdomain6.60540 > localhost6.localdomain6.7329: Flags [S], seq 4226911256, win 43690, options [mss 65476,sackOK,TS val 1668677734 ecr 0,nop,wscale 7], length 0
+17:28:23.780715 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60540: Flags [R.], seq 0, ack 4226911257, win 0, length 0
+17:28:23.780771 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [S], seq 2221513116, win 43690, options [mss 65495,sackOK,TS val 3652280201 ecr 0,nop,wscale 7], length 0
+17:28:23.780784 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [S.], seq 4082851632, ack 2221513117, win 43690, options [mss 65495,sackOK,TS val 3652280201 ecr 3652280201,nop,wscale 7], length 0
+17:28:23.780797 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652280201 ecr 3652280201], length 0
+17:28:23.780972 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652280202 ecr 3652280201], length 51
+17:28:23.780981 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652280202 ecr 3652280202], length 0
+17:28:23.780999 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652280202 ecr 3652280202], length 0
+17:28:23.782829 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1:3, ack 53, win 342, options [nop,nop,TS val 3652280203 ecr 3652280202], length 2
+17:28:23.782846 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 3, win 342, options [nop,nop,TS val 3652280203 ecr 3652280203], length 0
+17:28:23.782884 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 3:6, ack 53, win 342, options [nop,nop,TS val 3652280203 ecr 3652280203], length 3
+17:28:23.782894 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 6, win 342, options [nop,nop,TS val 3652280203 ecr 3652280203], length 0
+17:28:23.782925 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 6:9, ack 53, win 342, options [nop,nop,TS val 3652280203 ecr 3652280203], length 3
+17:28:23.782934 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 9, win 342, options [nop,nop,TS val 3652280203 ecr 3652280203], length 0
+17:28:23.782964 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 9:10, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280203], length 1
+17:28:23.782973 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783011 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 10:28, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 18
+17:28:23.783021 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 28, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783052 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 28:38, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 10
+17:28:23.783061 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 38, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783091 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 38:46, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 8
+17:28:23.783100 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 46, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783129 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 46:48, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 2
+17:28:23.783138 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 48, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783168 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 48:55, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 7
+17:28:23.783177 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 55, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783208 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 55:61, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 6
+17:28:23.783217 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 61, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783247 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 61:62, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1
+17:28:23.783256 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 62, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783285 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 62:63, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1
+17:28:23.783294 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783398 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 63:1259, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1196
+17:28:23.783410 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1259, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783460 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1259:1290, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 31
+17:28:23.783469 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1290, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783500 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1290:1298, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 8
+17:28:23.783509 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1298, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783554 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1298:1319, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 21
+17:28:23.783564 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1319, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783595 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1319:1320, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1
+17:28:23.783604 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1320, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783634 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1320:1321, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1
+17:28:23.783652 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1321, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783814 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1321:1322, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1
+17:28:23.783838 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1322, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783864 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1322:1323, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1
+17:28:23.783882 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1323, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.783907 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1323:1324, ack 53, win 342, options [nop,nop,TS val 3652280204 ecr 3652280204], length 1
+17:28:23.783924 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1324, win 1365, options [nop,nop,TS val 3652280204 ecr 3652280204], length 0
+17:28:23.784106 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1324:1336, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280204], length 12
+17:28:23.784129 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1336, win 1365, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784158 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1336:1340, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 4
+17:28:23.784176 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1340, win 1365, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784295 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1340:1344, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 4
+17:28:23.784315 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1344, win 1365, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784344 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1344:1345, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 1
+17:28:23.784362 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 1345, win 1365, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784442 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 1345:3470, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 2125
+17:28:23.784454 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 3470, win 2388, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784498 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 3470:4000, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 530
+17:28:23.784508 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 4000, win 2421, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784541 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 4000:4163, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 163
+17:28:23.784550 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 4163, win 2455, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784581 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 4163:4252, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 89
+17:28:23.784599 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 4252, win 2455, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784624 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 4252:4259, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 7
+17:28:23.784642 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 4259, win 2455, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784666 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [P.], seq 4259:4294, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 35
+17:28:23.784684 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 4294, win 2455, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784910 IP localhost.localdomain.7329 > localhost.localdomain.42682: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:23.784918 IP localhost.localdomain.42682 > localhost.localdomain.7329: Flags [.], ack 4295, win 2455, options [nop,nop,TS val 3652280205 ecr 3652280205], length 0
+17:28:26.516216 IP6 localhost6.localdomain6.60546 > localhost6.localdomain6.7329: Flags [S], seq 976718350, win 43690, options [mss 65476,sackOK,TS val 1668680468 ecr 0,nop,wscale 7], length 0
+17:28:26.516228 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60546: Flags [R.], seq 0, ack 976718351, win 0, length 0
+17:28:26.516287 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [S], seq 358847641, win 43690, options [mss 65495,sackOK,TS val 3652282935 ecr 0,nop,wscale 7], length 0
+17:28:26.516301 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [S.], seq 1767743135, ack 358847642, win 43690, options [mss 65495,sackOK,TS val 3652282935 ecr 3652282935,nop,wscale 7], length 0
+17:28:26.516314 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652282935 ecr 3652282935], length 0
+17:28:26.516489 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652282936 ecr 3652282935], length 51
+17:28:26.516498 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652282936 ecr 3652282936], length 0
+17:28:26.516517 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652282936 ecr 3652282936], length 0
+17:28:26.518834 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1:4, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282936], length 3
+17:28:26.518851 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.518891 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 4:8, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 4
+17:28:26.518902 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 8, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.518936 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 8:9, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 1
+17:28:26.518945 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 9, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.518977 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 9:10, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 1
+17:28:26.518987 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.519026 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 10:32, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 22
+17:28:26.519036 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 32, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.519070 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 32:40, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 8
+17:28:26.519079 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 40, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.519111 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 40:41, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 1
+17:28:26.519125 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 41, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.519276 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 41:61, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 20
+17:28:26.519289 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 61, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.519328 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 61:63, ack 53, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 2
+17:28:26.519338 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652282938 ecr 3652282938], length 0
+17:28:26.519455 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 63:386, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282938], length 323
+17:28:26.519468 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 386, win 350, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519521 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 386:1268, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 882
+17:28:26.519532 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1268, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519700 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1268:1293, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 25
+17:28:26.519712 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1293, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519746 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1293:1307, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 14
+17:28:26.519755 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1307, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519787 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1307:1309, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 2
+17:28:26.519797 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1309, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519828 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1309:1315, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 6
+17:28:26.519838 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1315, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519869 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1315:1318, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 3
+17:28:26.519879 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1318, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519910 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1318:1319, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 1
+17:28:26.519920 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1319, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519951 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1319:1321, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 2
+17:28:26.519971 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1321, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.519997 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1321:1323, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 2
+17:28:26.520016 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1323, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.520042 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1323:1324, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 1
+17:28:26.520060 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1324, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.520235 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1324:1339, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 15
+17:28:26.520259 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1339, win 364, options [nop,nop,TS val 3652282939 ecr 3652282939], length 0
+17:28:26.520379 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1339:1341, ack 53, win 342, options [nop,nop,TS val 3652282939 ecr 3652282939], length 2
+17:28:26.520401 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1341, win 364, options [nop,nop,TS val 3652282940 ecr 3652282939], length 0
+17:28:26.520431 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1341:1343, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 2
+17:28:26.520450 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1343, win 364, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520477 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1343:1344, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 1
+17:28:26.520496 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1344, win 364, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520522 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1344:1345, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 1
+17:28:26.520540 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 1345, win 364, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520626 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 1345:4036, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 2691
+17:28:26.520638 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4036, win 1387, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520686 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 4036:4209, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 173
+17:28:26.520696 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4209, win 1429, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520731 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 4209:4231, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 22
+17:28:26.520750 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4231, win 1429, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520776 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 4231:4270, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 39
+17:28:26.520795 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4270, win 1429, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520822 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 4270:4272, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 2
+17:28:26.520840 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4272, win 1429, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.520867 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [P.], seq 4272:4294, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 22
+17:28:26.520886 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4294, win 1429, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.521207 IP localhost.localdomain.7329 > localhost.localdomain.42688: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:26.521215 IP localhost.localdomain.42688 > localhost.localdomain.7329: Flags [.], ack 4295, win 1429, options [nop,nop,TS val 3652282940 ecr 3652282940], length 0
+17:28:28.772031 IP6 localhost6.localdomain6.60550 > localhost6.localdomain6.7329: Flags [S], seq 2218460142, win 43690, options [mss 65476,sackOK,TS val 1668682723 ecr 0,nop,wscale 7], length 0
+17:28:28.772042 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60550: Flags [R.], seq 0, ack 2218460143, win 0, length 0
+17:28:28.772097 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [S], seq 3374189846, win 43690, options [mss 65495,sackOK,TS val 3652285190 ecr 0,nop,wscale 7], length 0
+17:28:28.772110 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [S.], seq 3167729212, ack 3374189847, win 43690, options [mss 65495,sackOK,TS val 3652285190 ecr 3652285190,nop,wscale 7], length 0
+17:28:28.772122 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652285190 ecr 3652285190], length 0
+17:28:28.772283 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652285190 ecr 3652285190], length 51
+17:28:28.772292 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652285190 ecr 3652285190], length 0
+17:28:28.772310 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652285190 ecr 3652285190], length 0
+17:28:28.774133 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1:8, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285190], length 7
+17:28:28.774150 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 8, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774187 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 8:10, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 2
+17:28:28.774197 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774237 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 10:35, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 25
+17:28:28.774246 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 35, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774277 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 35:40, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 5
+17:28:28.774286 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 40, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774316 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 40:53, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 13
+17:28:28.774325 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774354 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 53:55, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 2
+17:28:28.774363 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 55, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774394 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 55:59, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 4
+17:28:28.774403 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 59, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774433 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 59:62, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 3
+17:28:28.774442 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 62, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774471 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 62:63, ack 53, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 1
+17:28:28.774480 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652285192 ecr 3652285192], length 0
+17:28:28.774580 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 63:196, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285192], length 133
+17:28:28.774591 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 196, win 350, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.774624 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 196:1121, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 925
+17:28:28.774633 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1121, win 365, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.774681 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1121:1129, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 8
+17:28:28.774691 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1129, win 365, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.774722 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1129:1295, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 166
+17:28:28.774731 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1295, win 379, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.774761 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1295:1317, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 22
+17:28:28.774770 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1317, win 379, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.774800 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1317:1318, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 1
+17:28:28.774809 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1318, win 379, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.774839 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1318:1322, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 4
+17:28:28.774848 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1322, win 379, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.774877 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1322:1324, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 2
+17:28:28.774886 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1324, win 379, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.775064 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1324:1345, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 21
+17:28:28.775087 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 1345, win 379, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.775295 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 1345:2284, ack 53, win 342, options [nop,nop,TS val 3652285193 ecr 3652285193], length 939
+17:28:28.775384 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 2284, win 394, options [nop,nop,TS val 3652285193 ecr 3652285193], length 0
+17:28:28.775600 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 2284:4091, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285193], length 1807
+17:28:28.775612 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4091, win 1417, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775650 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4091:4259, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 168
+17:28:28.775659 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4259, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775691 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4259:4279, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 20
+17:28:28.775708 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4279, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775733 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4279:4280, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 1
+17:28:28.775751 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4280, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775775 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4280:4281, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 1
+17:28:28.775792 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4281, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775816 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4281:4288, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 7
+17:28:28.775834 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4288, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775859 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4288:4289, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 1
+17:28:28.775875 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4289, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775900 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4289:4293, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 4
+17:28:28.775917 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4293, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.775941 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [P.], seq 4293:4294, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 1
+17:28:28.775958 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4294, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.776264 IP localhost.localdomain.7329 > localhost.localdomain.42692: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:28.776272 IP localhost.localdomain.42692 > localhost.localdomain.7329: Flags [.], ack 4295, win 1445, options [nop,nop,TS val 3652285194 ecr 3652285194], length 0
+17:28:31.572108 IP6 localhost6.localdomain6.60554 > localhost6.localdomain6.7329: Flags [S], seq 2511099432, win 43690, options [mss 65476,sackOK,TS val 1668685522 ecr 0,nop,wscale 7], length 0
+17:28:31.572121 IP6 localhost6.localdomain6.7329 > localhost6.localdomain6.60554: Flags [R.], seq 0, ack 2511099433, win 0, length 0
+17:28:31.572176 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [S], seq 516699395, win 43690, options [mss 65495,sackOK,TS val 3652287989 ecr 0,nop,wscale 7], length 0
+17:28:31.572190 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [S.], seq 4186446325, ack 516699396, win 43690, options [mss 65495,sackOK,TS val 3652287989 ecr 3652287989,nop,wscale 7], length 0
+17:28:31.572203 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 1, win 342, options [nop,nop,TS val 3652287989 ecr 3652287989], length 0
+17:28:31.572373 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [P.], seq 1:52, ack 1, win 342, options [nop,nop,TS val 3652287989 ecr 3652287989], length 51
+17:28:31.572381 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [.], ack 52, win 342, options [nop,nop,TS val 3652287989 ecr 3652287989], length 0
+17:28:31.572400 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [F.], seq 52, ack 1, win 342, options [nop,nop,TS val 3652287989 ecr 3652287989], length 0
+17:28:31.574959 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 1:5, ack 53, win 342, options [nop,nop,TS val 3652287991 ecr 3652287989], length 4
+17:28:31.574982 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 5, win 342, options [nop,nop,TS val 3652287991 ecr 3652287991], length 0
+17:28:31.575048 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 5:10, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287991], length 5
+17:28:31.575069 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 10, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575123 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 10:61, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 51
+17:28:31.575134 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 61, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575173 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 61:62, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 1
+17:28:31.575183 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 62, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575218 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 62:63, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 1
+17:28:31.575228 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 63, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575368 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 63:678, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 615
+17:28:31.575382 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 678, win 351, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575442 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 678:732, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 54
+17:28:31.575454 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 732, win 351, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575490 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 732:1296, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 564
+17:28:31.575501 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 1296, win 361, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575539 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 1296:1324, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 28
+17:28:31.575549 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 1324, win 361, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575682 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 1324:1337, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 13
+17:28:31.575696 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 1337, win 361, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575736 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 1337:1340, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 3
+17:28:31.575747 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 1340, win 361, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575782 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 1340:1343, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 3
+17:28:31.575792 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 1343, win 361, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575826 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 1343:1345, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 2
+17:28:31.575836 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 1345, win 361, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575929 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 1345:2358, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 1013
+17:28:31.575943 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 2358, win 377, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.575994 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 2358:4125, ack 53, win 342, options [nop,nop,TS val 3652287992 ecr 3652287992], length 1767
+17:28:31.576006 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 4125, win 1400, options [nop,nop,TS val 3652287992 ecr 3652287992], length 0
+17:28:31.576048 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 4125:4164, ack 53, win 342, options [nop,nop,TS val 3652287993 ecr 3652287992], length 39
+17:28:31.576058 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 4164, win 1400, options [nop,nop,TS val 3652287993 ecr 3652287993], length 0
+17:28:31.576095 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 4164:4240, ack 53, win 342, options [nop,nop,TS val 3652287993 ecr 3652287993], length 76
+17:28:31.576106 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 4240, win 1400, options [nop,nop,TS val 3652287993 ecr 3652287993], length 0
+17:28:31.576140 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 4240:4267, ack 53, win 342, options [nop,nop,TS val 3652287993 ecr 3652287993], length 27
+17:28:31.576161 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 4267, win 1400, options [nop,nop,TS val 3652287993 ecr 3652287993], length 0
+17:28:31.576190 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 4267:4284, ack 53, win 342, options [nop,nop,TS val 3652287993 ecr 3652287993], length 17
+17:28:31.576210 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 4284, win 1400, options [nop,nop,TS val 3652287993 ecr 3652287993], length 0
+17:28:31.576238 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [P.], seq 4284:4294, ack 53, win 342, options [nop,nop,TS val 3652287993 ecr 3652287993], length 10
+17:28:31.576258 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 4294, win 1400, options [nop,nop,TS val 3652287993 ecr 3652287993], length 0
+17:28:31.576529 IP localhost.localdomain.7329 > localhost.localdomain.42696: Flags [F.], seq 4294, ack 53, win 342, options [nop,nop,TS val 3652287993 ecr 3652287993], length 0
+17:28:31.576538 IP localhost.localdomain.42696 > localhost.localdomain.7329: Flags [.], ack 4295, win 1400, options [nop,nop,TS val 3652287993 ecr 3652287993], length 0
+
