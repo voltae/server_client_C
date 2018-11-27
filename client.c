@@ -35,13 +35,15 @@ static void errorMessage(char* userMessage, char* errorMessage, const char* prog
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
+void* get_IP_adress(struct sockaddr* sockadd);
+
 int main(int argc, const char* argv[]) {
     int fd_socket;                   // file descriptor client socket
-    struct sockaddr_in server_add;   // struct containing server address and port
     const char* progname = argv[0];        // Program name for error output
     unsigned long address = 0;       // Address in local form
-    struct addrinfo* serverinfo;    // Returnvalue of getaddrinfo()
-    struct addrinfo hints;           // Hints struct for the addr info function
+    struct addrinfo* serveraddr, * currentAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
+    struct addrinfo hints;                   // Hints struct for the addr info function
+    char remotehost[INET6_ADDRSTRLEN];       // char holding the remote host with 46 len
     const char testmessage[] = "This is a test to the server\0";
     char receiveBuffer[RECEIVERBUFFER] = {"\0"}; // Receive Buffer
     int i;                      // Counter for message
@@ -57,44 +59,53 @@ int main(int argc, const char* argv[]) {
     smc_parsecommandline(argc, argv, usage, &server, &port, &user, &message, &img_url, &verbose);
 
     fprintf(stdout, "server: % s, port: %s, message: %s, image_url: %s\n", server, port, message, img_url);
-    // Create a SOCKET(), return value is a file descriptor
-    fd_socket = socket(AF_INET, SOCK_STREAM, 0);
-    //
-    if (fd_socket < 0) {
-        errorMessage("Could not create a socket: ", strerror(errno), progname);
-    }
+
     fprintf(stdout, "Client Socket created.\n");
 
+    // Get the type of connection
     memset(&hints, 0, sizeof(hints));   // set to NULL
     hints.ai_family = AF_UNSPEC;          // Allows IP6 and IP6
     hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = 0;
+    hints.ai_flags = 0;
 
-
-    // initialize struct with 0
-    memset(&server_add, 0, sizeof(server_add));
-
-    if (getaddrinfo(address, port, &hints, &serverinfo) != 0) {
+    if (getaddrinfo(address, port, &hints, &serveraddr) != 0) {
         errorMessage("Could not resolve hostname.", strerror(errno), progname);
     }
 
 
-    /* Convert Internet host address from numbers-and-dots notation in CP
-   into binary data in network byte order.  */
-    if ((address = inet_addr(server)) != INADDR_NONE)
-        server_add.sin_addr.s_addr = inet_addr(address);
+    // use the struct coming from getaddrinfo
 
-    server_add.sin_family = AF_INET;
-    server_add.sin_port = htons(port);
+    // looping though the linked list to find a working address
+    for (currentAddr = serveraddr; currentAddr != NULL; currentAddr = currentAddr->ai_next) {
+        // Create a SOCKET(), return value is a file descriptor
+        fd_socket = socket(currentAddr->ai_family, currentAddr->ai_socktype, currentAddr->ai_protocol);
+        //
+        if (fd_socket < 0) {
+            fprintf(stderr, "Could not create a socket:\n");
+            continue; // try next pointer
+        }
 
-    // try to CONNECT() to the server
-    int success = connect(fd_socket, (struct sockaddr*) &server_add, sizeof(server_add));
-    if (success < 0) {
-        errorMessage("Could not connect to a Server:", strerror(errno), progname);
+        // try to CONNECT() to the server
+        int success = connect(fd_socket, currentAddr->ai_addr, currentAddr->ai_addrlen);
+        if (success == -1) {
+            fprintf(stderr, "Could not connect to a Server: %s\n", gai_strerror(success));
+            close(fd_socket);  // connection failed, close socket.
+            continue;   // try next pointer
+        }
+        break; // connection established
     }
-    /* inet_ntoa: Convert Internet number in IN to ASCII representation.  The return value
+    // if the currentPointer is Null at this point, something was going wrong
+    if (currentAddr == NULL) {
+        errorMessage("Connection failed.", strerror(errno), progname);
+    }
+
+    inet_ntop(currentAddr->ai_family, get_IP_adress((struct sockaddr*) currentAddr->ai_addr),
+              remotehost, sizeof(remotehost));
+    /* inet_ntop: Convert Internet number in IN to ASCII representation.  The return value
    is a pointer to an internal array containing the string.*/
     fprintf(stdout, "... Connection to Server: %s:%d established\n",
-            inet_ntoa(server_add.sin_addr), ntohs(server_add.sin_port));
+            remotehost);
 
     /* Here begins the write read loop of the client */
     ssize_t sendbytes, recbytes;
@@ -152,6 +163,23 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
     fprintf(stream, "\t-h, --help\n");
 
     exit(exitcode);
+}
+
+/**
+ * Return the corresponent sock addres depneding whether the address is
+ * IPv4 od IPv6
+ * @param sockadd actual sockaddres
+ * @return correct casted struct
+ */
+void* get_IP_adress(struct sockaddr* sockadd) {
+    switch (sockadd->sa_family) {
+        case AF_INET:
+            (void*) &(((struct sockaddr_in*) sockadd)->sin_addr);
+            (void*) &(((struct sockaddr_in*) sockadd)->sin_port);
+        case AF_INET6:
+            (void*) &(((struct sockaddr_in6*) sockadd)->sin6_addr);
+            (void*) &(((struct sockaddr_in6*) sockadd)->sin6_port);
+    }
 }
 /* usage: simple_message_client options
 options:
