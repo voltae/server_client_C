@@ -35,18 +35,15 @@ static void errorMessage(char* userMessage, char* errorMessage, const char* prog
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
-void* get_IP_adress(struct sockaddr* sockadd);
 
 int main(int argc, const char* argv[]) {
     int fd_socket;                   // file descriptor client socket
     const char* progname = argv[0];        // Program name for error output
-    unsigned long address = 0;       // Address in local form
     struct addrinfo* serveraddr, * currentAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
     struct addrinfo hints;                   // Hints struct for the addr info function
-    char remotehost[INET6_ADDRSTRLEN];       // char holding the remote host with 46 len
+    //   char remotehost[INET6_ADDRSTRLEN];       // char holding the remote host with 46 len
     const char testmessage[] = "This is a test to the server\0";
     char receiveBuffer[RECEIVERBUFFER] = {"\0"}; // Receive Buffer
-    int i;                      // Counter for message
 
     // Declare variables for the line parser
     const char* server = NULL;
@@ -58,7 +55,7 @@ int main(int argc, const char* argv[]) {
     // call the argument parser
     smc_parsecommandline(argc, argv, usage, &server, &port, &user, &message, &img_url, &verbose);
 
-    fprintf(stdout, "server: % s, port: %s, message: %s, image_url: %s\n", server, port, message, img_url);
+    fprintf(stdout, "server: %s, port: %s, message: %s, image_url: %s\n", server, port, message, img_url);
 
     fprintf(stdout, "Client Socket created.\n");
 
@@ -69,7 +66,7 @@ int main(int argc, const char* argv[]) {
     hints.ai_protocol = 0;
     hints.ai_flags = 0;
 
-    if (getaddrinfo(address, port, &hints, &serveraddr) != 0) {
+    if (getaddrinfo(server, port, &hints, &serveraddr) != 0) {
         errorMessage("Could not resolve hostname.", strerror(errno), progname);
     }
 
@@ -97,19 +94,19 @@ int main(int argc, const char* argv[]) {
     }
     // if the currentPointer is Null at this point, something was going wrong
     if (currentAddr == NULL) {
+        freeaddrinfo(serveraddr);   // Free the allocated pointer before quitting
         errorMessage("Connection failed.", strerror(errno), progname);
     }
+    freeaddrinfo(serveraddr);   // free the allocated pointer
 
-    inet_ntop(currentAddr->ai_family, get_IP_adress((struct sockaddr*) currentAddr->ai_addr),
-              remotehost, sizeof(remotehost));
+
     /* inet_ntop: Convert Internet number in IN to ASCII representation.  The return value
    is a pointer to an internal array containing the string.*/
-    fprintf(stdout, "... Connection to Server: %s:%d established\n",
-            remotehost);
+    fprintf(stdout, "... Connection to Server: established\n");
 
     /* Here begins the write read loop of the client */
     ssize_t sendbytes, recbytes;
-    write(fd_socket, testmessage, sizeof(testmessage));
+    sendbytes = write(fd_socket, testmessage, sizeof(testmessage));
     if (sendbytes < 0) {
         errorMessage("Could not write to server: ", strerror(errno), progname);
     }
@@ -130,7 +127,7 @@ int main(int argc, const char* argv[]) {
         errorMessage("Could not close the RD socket: ", strerror(errno), progname);
     }
     // print out the received buffer
-    fprintf(stdout, "Server says: %\n", receiveBuffer);
+    fprintf(stdout, "Server says: %s\n", receiveBuffer);
     // CLOSE()
     if (close(fd_socket) < 0) {
         errorMessage("Error in closing socket", strerror(errno), progname);
@@ -165,22 +162,7 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
     exit(exitcode);
 }
 
-/**
- * Return the corresponent sock addres depneding whether the address is
- * IPv4 od IPv6
- * @param sockadd actual sockaddres
- * @return correct casted struct
- */
-void* get_IP_adress(struct sockaddr* sockadd) {
-    switch (sockadd->sa_family) {
-        case AF_INET:
-            (void*) &(((struct sockaddr_in*) sockadd)->sin_addr);
-            (void*) &(((struct sockaddr_in*) sockadd)->sin_port);
-        case AF_INET6:
-            (void*) &(((struct sockaddr_in6*) sockadd)->sin6_addr);
-            (void*) &(((struct sockaddr_in6*) sockadd)->sin6_port);
-    }
-}
+
 /* usage: simple_message_client options
 options:
 	-s, --server <server>   full qualified domain name or IP address of the server
