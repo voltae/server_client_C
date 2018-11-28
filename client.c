@@ -31,13 +31,14 @@
 #define PORT 7329
 #define RECEIVERBUFFER 100
 
-static void errorMessage(char* userMessage, char* errorMessage, const char* progname);
+static void errorMessage(const char* userMessage, const char* errorMessage, const char* progname);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
+void writeToSocket(int fd_socket, char* message, const char* progname);
 
 int main(int argc, const char* argv[]) {
-    int fd_socket;                   // file descriptor client socket
+    int fd_socket, fd_copy;                   // file descriptor client socket
     const char* progname = argv[0];        // Program name for error output
     struct addrinfo* serveraddr, * currentAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
     struct addrinfo hints;                   // Hints struct for the addr info function
@@ -66,11 +67,11 @@ int main(int argc, const char* argv[]) {
     hints.ai_protocol = 0;
     hints.ai_flags = 0;
 
-    if (getaddrinfo(server, port, &hints, &serveraddr) != 0) {
-        errorMessage("Could not resolve hostname.", strerror(errno), progname);
+    int retValue = 0;
+    //TODO: hier sollte eigentlich server rein, aber geht nicth warum? NULL geht.
+    if ((retValue = getaddrinfo(NULL, port, &hints, &serveraddr) != 0)) {
+        errorMessage("Could not resolve hostname.", gai_strerror(retValue), progname);
     }
-
-
     // use the struct coming from getaddrinfo
 
     // looping though the linked list to find a working address
@@ -104,7 +105,34 @@ int main(int argc, const char* argv[]) {
    is a pointer to an internal array containing the string.*/
     fprintf(stdout, "... Connection to Server: established\n");
 
+
+
     /* Here begins the write read loop of the client */
+
+    /* using filepointer instead of write */
+    char messageFilePointer[] = "This message is going to be send via Filepointer\0";
+    /* convert the file descriptor to a File Pointer */
+    if ((fd_copy = dup(fd_socket) == -1)) {
+        errorMessage("Error in duplicating file descriptor", strerror(errno), progname);
+    }
+
+    FILE* client_read_fp, * client_write_fp;
+    client_read_fp = fdopen(fd_socket, "r");
+    client_write_fp = fdopen(fd_copy, "w");
+    if (client_read_fp == NULL || client_write_fp == NULL) {
+        // an error occured during cerate Filepointer, close the file descriptor
+        close(fd_socket);
+        errorMessage("Could not create a File Pointer", strerror(errno), progname);
+    }
+
+    int success;
+    success = fputs(messageFilePointer, client_write_fp);
+    if (success == EOF) {
+        // an error occured during write, close the file descriptor
+        close(fd_socket);
+        errorMessage("Could not write to the File Pointer", strerror(errno), progname);
+    }
+
     ssize_t sendbytes, recbytes;
     sendbytes = write(fd_socket, testmessage, sizeof(testmessage));
     if (sendbytes < 0) {
@@ -134,7 +162,7 @@ int main(int argc, const char* argv[]) {
     }
 }
 
-static void errorMessage(char* userMessage, char* errorMessage, const char* progname) {
+static void errorMessage(const char* userMessage, const char* errorMessage, const char* progname) {
     fprintf(stderr, "%s: %s %s", progname, userMessage, errorMessage);
     exit(EXIT_FAILURE);
 }
