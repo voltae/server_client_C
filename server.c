@@ -13,12 +13,11 @@
 #include <errno.h>          // provides errno
 #include <arpa/inet.h>      // provides inet_address
 #include <unistd.h>         // provides read(), write(), close()
+#include <wait.h>           // provides waitpid()
 
 /*@TODO Replace testing addresses with user defined from args
  * Ihr Client soll genauso wie die Musterimplementierung (simple_message_client(1))
  * sowohl mit IPV4 als auch mit IPV6 funktionieren. */
-#define ADDRESS "127.0.0.1"
-#define PORT 7329
 #define RECEIVERBUFFER 100
 
 /*@TODO Replace testing addresses with user defined from args */
@@ -32,16 +31,20 @@ static void usage(FILE* stream, const char* cmnd, int exitcode);
 
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port);
 
+static void sigchild_handler(int s);
+
 int main(int argc, char* const* argv) {
     char buffer[RECEIVERBUFFER] = {"\0"};
     char messageServer[] = "The Server is saying annoying things.";
 
     // file descriptor socket server
+
     int fd_socket_server, fd_socket_client;
     struct sockaddr_in server_add, client_add;  // Server Socket, Client Socket
     const char* progname = argv[0];
+    struct sigaction signalact;
     uint16_t port = 0;                          // Initialize Port Variable for Parameter check
-    char serverAdress[INET_ADDRSTRLEN];         // Server address for logging
+    // char clientAdress[INET_ADDRSTRLEN];         // Server address for logging
 
     evaluateParameters(argc, argv, &port);
     // SOCKET()
@@ -62,19 +65,25 @@ int main(int argc, char* const* argv) {
     if (bind(fd_socket_server, (struct sockaddr*) &server_add, sizeof(server_add)) < 0) {
         errorMessage("Could not bind to socket: ", strerror(errno), progname);
     }
-    fprintf(stdout, "Server Socket:%s:%d created.\n",
-            inet_ntop(AF_INET, &(server_add.sin_addr), serverAdress, sizeof(serverAdress)),
+    fprintf(stdout, "Server Socket:%d created.\n",
             ntohs(server_add.sin_port));
     // LISTEN()
     if (listen(fd_socket_server, BACKLOG) < 0) {
         errorMessage("Could not listen to socket: ", strerror(errno), progname);
     }
 
-    fprintf(stdout, "Server listen on:%s:%d created.\n",
-            inet_ntop(AF_INET, &(server_add.sin_addr), serverAdress, sizeof(serverAdress)),
+    fprintf(stdout, "Server listen on Port :%d.\n",
             ntohs(server_add.sin_port));
     fprintf(stdout, "Server listening. Waiting ...\n");
 
+    // add the child handler to the address struct
+    signalact.sa_handler = sigchild_handler;        // let the child action be handled by function
+    sigemptyset(&signalact.sa_mask);
+    signalact.sa_flags = SA_RESTART;
+    if (sigaction(SIGCHLD, &signalact, NULL) == -1) {
+        close(fd_socket_server);
+        errorMessage("Error in Child process", strerror(errno), progname);
+    }
     // Endless loop, Server must be killed manually
     socklen_t len_client = sizeof(client_add);
     int rec_size;   // bytes received from client
@@ -87,7 +96,34 @@ int main(int argc, char* const* argv) {
         if (fd_socket_client < 0) {
             errorMessage("Could not accept socket: ", strerror(errno), progname);
         }
+        fprintf(stdout, "Got connection from:%d\n",
+                ntohs(client_add.sin_addr.s_addr));
+        if (!fork()) {
+            /* child process routine */
+            // Close the listening socket
+            (void) close(fd_socket_server);
+            (void) close(fd_socket_client);
 
+            /* Redirect the STDIN to the socket */
+            if (fd_socket_client != STDIN_FILENO) {
+                int statusDupRead = dup2(fd_socket_client, STDIN_FILENO);
+                if (statusDupRead == -1) {
+                    (void) close(fd_socket_client);
+                    (void) close(fd_socket_server);
+                    errorMessage("Could not redirect the socket", strerror(errno), progname);
+                }
+            }
+            /* REdirect the STDOUT to the socket */
+            if (fd_socket_client != STDOUT_FILENO) {
+                int statusDupWrite = dup2(fd_socket_client, STDOUT_FILENO);
+                if (statusDupWrite == -1) {
+                    (void) close(fd_socket_client);
+                    (void) close(fd_socket_server);
+                }
+            }
+
+            /* *** Do the exec here *** */
+        }
         rec_size = read(fd_socket_client, buffer, RECEIVERBUFFER);
         if (rec_size < 0) {
             errorMessage("Could not read from Client: ", strerror(errno), progname);
@@ -99,6 +135,14 @@ int main(int argc, char* const* argv) {
             errorMessage("Could not write to Client.", strerror(errno), progname);
         }
     }
+}
+
+static void sigchild_handler(int s) {
+    int save_errno = errno;
+    /* wait for terminating properly the child process */
+    while (waitpid(-1, NULL, WNOHANG) > 0);
+    errno = save_errno;
+
 }
 
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
