@@ -24,8 +24,13 @@
 #include <unistd.h>         // provides read(), write(), close()
 #include <netdb.h>          // provides getaddrinfo()
 // provides smc_parsecommandline()
-//#include "./libsimple_message_client_commandline_handling/simple_message_client_commandline_handling.h"
+#ifdef LOCAL
+#include "./libsimple_message_client_commandline_handling/simple_message_client_commandline_handling.h"
+#else
+
 #include <simple_message_client_commandline_handling.h>
+
+#endif
 /*@TODO Replace testing addresses with user defined from args */
 #define ADDRESS "127.0.0.1"
 #define PORT 7329
@@ -63,7 +68,7 @@ int main(int argc, const char* argv[]) {
     memset(&hints, 0, sizeof(hints));   // set to NULL
     hints.ai_family = AF_UNSPEC;          // Allows IP4 and IP6
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;              // reduntand da eh null von vorher
+    hints.ai_protocol = 0;              // redundand da eh null von vorher
     hints.ai_flags = 0;
 
     int retValue = 0;
@@ -108,14 +113,13 @@ int main(int argc, const char* argv[]) {
     /* Here begins the write read loop of the client */
 
     /* using filepointer instead of write */
-    char messageFilePointer[] = "This messageOut is going to be send via Filepointer\0";
     /* convert the file descriptor to a File Pointer */
     if ((fd_copy = dup(fd_socket) == -1)) {
         errorMessage("Error in duplicating file descriptor", strerror(errno), progname);
     }
 
     FILE* client_read_fp, * client_write_fp;
-    client_read_fp = fdopen(fd_socket, "r");
+    client_read_fp = fdopen(fd_copy, "r");      // use the copy of the duplicated field descriptor for both file Pointer
     client_write_fp = fdopen(fd_copy, "w");
     if (client_read_fp == NULL || client_write_fp == NULL) {
         // an error occured during cerate Filepointer, close the file descriptor
@@ -124,12 +128,18 @@ int main(int argc, const char* argv[]) {
     }
 
     int success;
-    success = fprintf(client_write_fp, "%s\n", messageFilePointer);     // fprintf uses write descriptor
+    if (img_url != NULL) {
+        success = fprintf(client_write_fp, "user=%s\nimg=%s\n%s", user, img_url, messageOut);
+    } else {
+        success = fprintf(client_write_fp, "user=%s\n%s", user, messageOut);
+    }
     if (success == -1) {
         // an error occured during write, close the file descriptor
         close(fd_socket);
         errorMessage("Could not write to the File Pointer", strerror(errno), progname);
     }
+
+    // write till we find a EOF
 
     ssize_t sendbytes, recbytes;
     sendbytes = write(fd_socket, testmessage, sizeof(testmessage));
@@ -144,10 +154,10 @@ int main(int argc, const char* argv[]) {
 
     // recbytes = read(fd_socket, receiveBuffer, RECEIVERBUFFER);
     recbytes = fscanf(client_read_fp, "%s", receiveBuffer);     // fscanf uses read descriptor
-
     if (recbytes < 0) {
         errorMessage("Could not read from serverIP: ", strerror(errno), progname);
     }
+
     fprintf(stdout, "Server says: %s\n", receiveBuffer);
     /* Close the read connection from the client, over and out ... */
     if (shutdown(fd_socket, SHUT_RDWR) < 0) {
