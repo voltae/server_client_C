@@ -31,7 +31,7 @@ static void usage(FILE* stream, const char* cmnd, int exitcode);
 
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port);
 
-static void sigchild_handler(int s);
+//static void sigchild_handler(int s);
 
 int main(int argc, char* const* argv) {
     char buffer[RECEIVERBUFFER] = {"\0"};
@@ -96,15 +96,16 @@ int main(int argc, char* const* argv) {
         if (fd_socket_client < 0) {
             errorMessage("Could not accept socket: ", strerror(errno), progname);
         }
+        /*
         fprintf(stdout, "Got connection from:%d\n",
                 ntohs(client_add.sin_addr.s_addr));
         if (!fork()) {
-            /* child process routine */
+            // child process routine
             // Close the listening socket
             (void) close(fd_socket_server);
             (void) close(fd_socket_client);
 
-            /* Redirect the STDIN to the socket */
+            // Redirect the STDIN to the socket
             if (fd_socket_client != STDIN_FILENO) {
                 int statusDupRead = dup2(fd_socket_client, STDIN_FILENO);
                 if (statusDupRead == -1) {
@@ -113,7 +114,7 @@ int main(int argc, char* const* argv) {
                     errorMessage("Could not redirect the socket", strerror(errno), progname);
                 }
             }
-            /* REdirect the STDOUT to the socket */
+            // REdirect the STDOUT to the socket
             if (fd_socket_client != STDOUT_FILENO) {
                 int statusDupWrite = dup2(fd_socket_client, STDOUT_FILENO);
                 if (statusDupWrite == -1) {
@@ -122,8 +123,9 @@ int main(int argc, char* const* argv) {
                 }
             }
 
-            /* *** Do the exec here *** */
+            // *** Do the exec here ***
         }
+        */
         rec_size = read(fd_socket_client, buffer, RECEIVERBUFFER);
         if (rec_size < 0) {
             errorMessage("Could not read from Client: ", strerror(errno), progname);
@@ -139,7 +141,7 @@ int main(int argc, char* const* argv) {
 
 static void sigchild_handler(int s) {
     int save_errno = errno;
-    /* wait for terminating properly the child process */
+    // wait for terminating properly the child process
     while (waitpid(-1, NULL, WNOHANG) > 0);
     errno = save_errno;
 

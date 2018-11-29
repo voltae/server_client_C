@@ -20,7 +20,7 @@
 # Define used Variables
 CC = /usr/bin/gcc
 CFLAGS = -Wall -Werror -Wextra -Wstrict-prototypes -pedantic -fno-common -O3 -g -std=gnu11
-LDFLAGS = ./libsimple_message_client_commandline_handling/libsimple_message_client_commandline_handling.a
+LDFLAGS = simple_message_client_commandline_handling
 LIBOBJECT=./libsimple_message_client_commandline_handling/simple_message_client_commandline_handling.o
 
 ##
@@ -35,15 +35,17 @@ LIBOBJECT=./libsimple_message_client_commandline_handling/simple_message_client_
 ##
 
 .PHONY: all
-all: server client
+all: client
 
 server: server.o
 	$(CC) $(CFLAGS) -oserver -L$(LDFLAGS)
 
 client: client.o
-	$(CC) $(CFLAGS) client.c $(LIBOBJECT) -oclient -L $(LDFLAGS)
+	$(CC) $(CFLAGS) client.c -oclient  -l$(LDFLAGS)
 
 
 .PHONY: clean
 clean:
 	rm -rf *.o
+	rm -f client
+	rm -f server
