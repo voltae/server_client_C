@@ -24,8 +24,8 @@
 #include <unistd.h>         // provides read(), write(), close()
 #include <netdb.h>          // provides getaddrinfo()
 // provides smc_parsecommandline()
-#include "./libsimple_message_client_commandline_handling/simple_message_client_commandline_handling.h"
-
+//#include "./libsimple_message_client_commandline_handling/simple_message_client_commandline_handling.h"
+#include <simple_message_client_commandline_handling.h>
 /*@TODO Replace testing addresses with user defined from args */
 #define ADDRESS "127.0.0.1"
 #define PORT 7329
@@ -43,33 +43,31 @@ int main(int argc, const char* argv[]) {
     struct addrinfo* serveraddr, * currentAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
     struct addrinfo hints;                   // Hints struct for the addr info function
     //   char remotehost[INET6_ADDRSTRLEN];       // char holding the remote host with 46 len
-    const char testmessage[] = "This is a test to the server\0";
+    const char testmessage[] = "This is a test to the serverIP\0";
     char receiveBuffer[RECEIVERBUFFER] = {"\0"}; // Receive Buffer
 
     // Declare variables for the line parser
-    const char* server = NULL;
-    const char* port = NULL;
+    const char* serverIP = NULL;
+    const char* serverPort = NULL;
     const char* user = NULL;
-    const char* message = NULL;
+    const char* messageOut = NULL;
     const char* img_url = NULL;
     int verbose = 0;
     // call the argument parser
-    smc_parsecommandline(argc, argv, usage, &server, &port, &user, &message, &img_url, &verbose);
+    smc_parsecommandline(argc, argv, usage, &serverIP, &serverPort, &user, &messageOut, &img_url, &verbose);
 
-    fprintf(stdout, "server: %s, port: %s, message: %s, image_url: %s\n", server, port, message, img_url);
-
-    fprintf(stdout, "Client Socket created.\n");
+    fprintf(stdout, "serverIP: %s, serverPort: %s, messageOut: %s, image_url: %s\n", serverIP, serverPort, messageOut,
+            img_url);
 
     // Get the type of connection
     memset(&hints, 0, sizeof(hints));   // set to NULL
-    hints.ai_family = AF_UNSPEC;          // Allows IP6 and IP6
+    hints.ai_family = AF_UNSPEC;          // Allows IP4 and IP6
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;
+    hints.ai_protocol = 0;              // reduntand da eh null von vorher
     hints.ai_flags = 0;
 
     int retValue = 0;
-    //TODO: hier sollte eigentlich server rein, aber geht nicth warum? NULL geht.
-    if ((retValue = getaddrinfo(NULL, port, &hints, &serveraddr) != 0)) {
+    if ((retValue = getaddrinfo(serverIP, serverPort, &hints, &serveraddr) != 0)) {
         errorMessage("Could not resolve hostname.", gai_strerror(retValue), progname);
     }
     // use the struct coming from getaddrinfo
@@ -83,8 +81,8 @@ int main(int argc, const char* argv[]) {
             fprintf(stderr, "Could not create a socket:\n");
             continue; // try next pointer
         }
-
-        // try to CONNECT() to the server
+        fprintf(stdout, "Client Socket created.\n");
+        // try to CONNECT() to the serverIP
         int success = connect(fd_socket, currentAddr->ai_addr, currentAddr->ai_addrlen);
         if (success == -1) {
             fprintf(stderr, "Could not connect to a Server: %s\n", gai_strerror(success));
@@ -110,7 +108,7 @@ int main(int argc, const char* argv[]) {
     /* Here begins the write read loop of the client */
 
     /* using filepointer instead of write */
-    char messageFilePointer[] = "This message is going to be send via Filepointer\0";
+    char messageFilePointer[] = "This messageOut is going to be send via Filepointer\0";
     /* convert the file descriptor to a File Pointer */
     if ((fd_copy = dup(fd_socket) == -1)) {
         errorMessage("Error in duplicating file descriptor", strerror(errno), progname);
@@ -126,8 +124,8 @@ int main(int argc, const char* argv[]) {
     }
 
     int success;
-    success = fputs(messageFilePointer, client_write_fp);
-    if (success == EOF) {
+    success = fprintf(client_write_fp, "%s\n", messageFilePointer);     // fprintf uses write descriptor
+    if (success == -1) {
         // an error occured during write, close the file descriptor
         close(fd_socket);
         errorMessage("Could not write to the File Pointer", strerror(errno), progname);
@@ -136,7 +134,7 @@ int main(int argc, const char* argv[]) {
     ssize_t sendbytes, recbytes;
     sendbytes = write(fd_socket, testmessage, sizeof(testmessage));
     if (sendbytes < 0) {
-        errorMessage("Could not write to server: ", strerror(errno), progname);
+        errorMessage("Could not write to serverIP: ", strerror(errno), progname);
     }
 
     /* Close the write connection from the client, nothing to say ... */
@@ -144,10 +142,11 @@ int main(int argc, const char* argv[]) {
         errorMessage("Could not close the WR socket: ", strerror(errno), progname);
     }
 
-    recbytes = read(fd_socket, receiveBuffer, RECEIVERBUFFER);
+    // recbytes = read(fd_socket, receiveBuffer, RECEIVERBUFFER);
+    recbytes = fscanf(client_read_fp, "%s", receiveBuffer);     // fscanf uses read descriptor
 
     if (recbytes < 0) {
-        errorMessage("Could not read from server: ", strerror(errno), progname);
+        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
     }
     fprintf(stdout, "Server says: %s\n", receiveBuffer);
     /* Close the read connection from the client, over and out ... */
