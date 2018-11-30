@@ -23,18 +23,14 @@
 #include <arpa/inet.h>      // provides inet_address
 #include <unistd.h>         // provides read(), write(), close()
 #include <netdb.h>          // provides getaddrinfo()
-// provides smc_parsecommandline()
-#ifdef LOCAL
-#include "./libsimple_message_client_commandline_handling/simple_message_client_commandline_handling.h"
-#else
+#include <simple_message_client_commandline_handling.h> // provides smc_parsecommandline()
 
-#include <simple_message_client_commandline_handling.h>
 
-#endif
-/*@TODO Replace testing addresses with user defined from args */
-#define ADDRESS "127.0.0.1"
-#define PORT 7329
 #define RECEIVERBUFFER 100
+#define STATUSLENGTH 10
+#define MAXFILENAMELENGTH 255
+#define MAXFILELENGTH 10        // i.e 10^10 Bytes far enough
+#define CHUNK 256
 
 static void errorMessage(const char* userMessage, const char* errorMessage, const char* progname);
 
@@ -42,14 +38,20 @@ static void usage(FILE* stream, const char* cmnd, int exitcode);
 
 void writeToSocket(int fd_socket, char* message, const char* progname);
 
+static int extractIntfromString(char* buffer, int len);
+
 int main(int argc, const char* argv[]) {
-    int fd_socket, fd_copy;                   // file descriptor client socket
-    const char* progname = argv[0];        // Program name for error output
+    int fd_socket, fd_copy;                     // file descriptor client socket
+    const char* progname = argv[0];             // Program name for error output
     struct addrinfo* serveraddr, * currentAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
-    struct addrinfo hints;                   // Hints struct for the addr info function
+    struct addrinfo hints;                      // Hints struct for the addr info function
     //   char remotehost[INET6_ADDRSTRLEN];       // char holding the remote host with 46 len
-    const char testmessage[] = "This is a test to the serverIP\0";
-    char receiveBuffer[RECEIVERBUFFER] = {"\0"}; // Receive Buffer
+    char filenameBuffer[MAXFILENAMELENGTH]; // Buffer for File name max 255 Chars
+    char html_lenghtBuffer[MAXFILELENGTH];                  // Max size of length
+    int html_fileLength;
+    char statusBuffer[STATUSLENGTH];                  // Buffer for the Status
+    int status;                                 // integer holds status
+
 
     // Declare variables for the line parser
     const char* serverIP = NULL;
@@ -64,7 +66,7 @@ int main(int argc, const char* argv[]) {
     fprintf(stdout, "serverIP: %s, serverPort: %s, messageOut: %s, image_url: %s\n", serverIP, serverPort, messageOut,
             img_url);
 
-    // Get the type of connection
+    // Get the type of connection Hint struct!
     memset(&hints, 0, sizeof(hints));   // set to NULL
     hints.ai_family = AF_UNSPEC;          // Allows IP4 and IP6
     hints.ai_socktype = SOCK_STREAM;
@@ -108,71 +110,96 @@ int main(int argc, const char* argv[]) {
    is a pointer to an internal array containing the string.*/
     fprintf(stdout, "... Connection to Server: established\n");
 
-
-
     /* Here begins the write read loop of the client */
 
     /* using filepointer instead of write */
     /* convert the file descriptor to a File Pointer */
-    if ((fd_copy = dup(fd_socket) == -1)) {
+    if ((fd_copy = dup(fd_socket)) == -1) {
         errorMessage("Error in duplicating file descriptor", strerror(errno), progname);
     }
+    fprintf(stdout, "Copied the socked descr.: orig:%d copy: %d\n", fd_socket, fd_copy);
 
     FILE* client_read_fp, * client_write_fp;
     client_read_fp = fdopen(fd_copy, "r");      // use the copy of the duplicated field descriptor for both file Pointer
-    client_write_fp = fdopen(fd_copy, "w");
+    client_write_fp = fdopen(fd_socket, "w");
     if (client_read_fp == NULL || client_write_fp == NULL) {
         // an error occured during cerate Filepointer, close the file descriptor
         close(fd_socket);
         errorMessage("Could not create a File Pointer", strerror(errno), progname);
     }
 
-    int success;
-    if (img_url != NULL) {
-        success = fprintf(client_write_fp, "user=%s\nimg=%s\n%s", user, img_url, messageOut);
+    ssize_t sendbytes; //recbytes;
+    if (img_url == NULL) {
+        sendbytes = fprintf(client_write_fp, "user=%s\n%s", user, messageOut);
     } else {
-        success = fprintf(client_write_fp, "user=%s\n%s", user, messageOut);
+        sendbytes = fprintf(client_write_fp, "user=%s\nimg=%s\n%s", user, img_url, messageOut);
     }
-    if (success == -1) {
-        // an error occured during write, close the file descriptor
-        close(fd_socket);
-        errorMessage("Could not write to the File Pointer", strerror(errno), progname);
-    }
-
-    // write till we find a EOF
-
-    ssize_t sendbytes, recbytes;
-    sendbytes = write(fd_socket, testmessage, sizeof(testmessage));
+    // Outcommented we work with the filepointer and fprintf
+    //sendbytes = write(fd_socket, messageOut, sizeof(messageOut));
     if (sendbytes < 0) {
         errorMessage("Could not write to serverIP: ", strerror(errno), progname);
     }
+    if (sendbytes == -1) {
+        // an error occured during write, close the file descriptor
+        close(fd_socket);
+        errorMessage("Could not write to the File Pointer", strerror(errno), progname);
+    } else if (sendbytes == 0) {
+        errorMessage("Nothing sended.", strerror(errno), progname);
+    }
+    fflush(client_write_fp);        //@TODO  ERROR Checking
+
 
     /* Close the write connection from the client, nothing to say ... */
-    if (shutdown(fd_socket, SHUT_WR) < 0) {
+    if ((shutdown(fileno(client_write_fp), SHUT_WR)) < 0) {
         errorMessage("Could not close the WR socket: ", strerror(errno), progname);
-    }
+    } // outcommented for testing
 
-    // recbytes = read(fd_socket, receiveBuffer, RECEIVERBUFFER);
-    recbytes = fscanf(client_read_fp, "%s", receiveBuffer);     // fscanf uses read descriptor
-    if (recbytes < 0) {
+    fclose(client_write_fp);
+
+    // @TODO: close ressources in error case.
+    // Get status
+    if (fgets(statusBuffer, STATUSLENGTH, client_read_fp) == NULL) {     // fgets uses read descriptor
         errorMessage("Could not read from serverIP: ", strerror(errno), progname);
     }
 
-    fprintf(stdout, "Server says: %s\n", receiveBuffer);
+    status = extractIntfromString(statusBuffer, strlen(statusBuffer));
+    fprintf(stdout, "Server says: %s\n", statusBuffer);
+    fprintf(stdout, "Status is: %d\n", status);
+
+    // get filename
+    if (fgets(filenameBuffer, MAXFILENAMELENGTH, client_read_fp) == NULL) {    // fgets uses read descriptor
+        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+    }
+    if (fgets(html_lenghtBuffer, MAXFILELENGTH, client_read_fp) == NULL) {
+        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+    }
+    html_fileLength = extractIntfromString(html_lenghtBuffer, MAXFILELENGTH);
+
+    fprintf(stdout, "Server says: %s\n", filenameBuffer);
+    fprintf(stdout, "Server says: %s, %d\n", html_lenghtBuffer, html_fileLength);
+
+    // Create Buffer for the html_text
+    char html_text_buffer[html_fileLength];
+    if (fread(html_text_buffer, CHUNK, html_fileLength, client_read_fp) == 0) {
+        if (ferror(client_read_fp)) {
+            errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+        }
+    }
+    fprintf(stdout, "Server says: %s\n", html_text_buffer);
+
     /* Close the read connection from the client, over and out ... */
-    if (shutdown(fd_socket, SHUT_RDWR) < 0) {
+    if (shutdown(fileno(client_read_fp), SHUT_RDWR) < 0) {
         errorMessage("Could not close the RD socket: ", strerror(errno), progname);
     }
-    // print out the received buffer
-    fprintf(stdout, "Server says: %s\n", receiveBuffer);
-    // CLOSE()
-    if (close(fd_socket) < 0) {
+
+    // CLOSE() - The read end
+    if (close(fileno(client_read_fp)) < 0) {
         errorMessage("Error in closing socket", strerror(errno), progname);
     }
 }
 
 static void errorMessage(const char* userMessage, const char* errorMessage, const char* progname) {
-    fprintf(stderr, "%s: %s %s", progname, userMessage, errorMessage);
+    fprintf(stderr, "%s: %s %s\n", progname, userMessage, errorMessage);
     exit(EXIT_FAILURE);
 }
 
@@ -199,7 +226,17 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
     exit(exitcode);
 }
 
+static int extractIntfromString(char* buffer, int len) {
+    char tempBuffer[len];
+    int resultLen = 0, result;
+    for (int i = 0; i < len; i++) {
+        if (buffer[i] >= '0' && buffer[i] <= '9')
+            tempBuffer[resultLen++] = buffer[i];
+    }
 
+    result = (int) strtol(tempBuffer, NULL, 10);
+    return result;
+}
 /* usage: simple_message_client options
 options:
 	-s, --server <server>   full qualified domain name or IP address of the server
