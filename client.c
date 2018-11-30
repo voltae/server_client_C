@@ -37,9 +37,14 @@ static void errorMessage(const char* userMessage, const char* errorMessage, cons
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
-void writeToSocket(int fd_socket, char* message, const char* progname);
+//static void writeToSocket(int fd_socket, char* message, const char* progname);
+
+static void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const char* progname);
 
 static size_t extractIntfromString(char* buffer, int len);
+
+static char* extractFilename(char* filenameBuffer);
+
 
 int main(int argc, const char* argv[]) {
     int fd_socket, fd_copy;                     // file descriptor client socket
@@ -159,7 +164,7 @@ int main(int argc, const char* argv[]) {
     // @TODO: close ressources in error case.
     // Get status
     if (fgets(statusBuffer, STATUSLENGTH, client_read_fp) == NULL) {     // fgets uses read descriptor
-        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+        errorMessage("Could not read from server: ", strerror(errno), progname);
     }
 
     status = extractIntfromString(statusBuffer, strlen(statusBuffer));
@@ -168,37 +173,49 @@ int main(int argc, const char* argv[]) {
 
     // get filename
     if (fgets(filenameBuffer, MAXFILENAMELENGTH, client_read_fp) == NULL) {    // fgets uses read descriptor
-        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+        errorMessage("Could not read from server: ", strerror(errno), progname);
     }
+
     if (fgets(html_lenghtBuffer, MAXFILELENGTH, client_read_fp) == NULL) {
-        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+        errorMessage("Could not read from server: ", strerror(errno), progname);
     }
     html_fileLength = extractIntfromString(html_lenghtBuffer, MAXFILELENGTH);
 
     fprintf(stdout, "Server says: %s\n", filenameBuffer);
     fprintf(stdout, "Server says: %s, %d\n", html_lenghtBuffer, html_fileLength);
 
+    // extract the filename from the field
+    char* filename = extractFilename(filenameBuffer);
+    fprintf(stderr, "Filename: %s", filename);
+
     // open filepointer for disk
-    disk_write_fp = fopen(filenameBuffer, "w");
+    disk_write_fp = fopen(filename, "w");
 
-    // Create Buffer for the html_text
-    char html_text_buffer[html_fileLength];
-    char chunked[CHUNK];
-    memset(html_text_buffer, 0, sizeof(html_text_buffer));       // write 0 in the buffer
-    int readBytes = 0, writeBytes = 0, cycles;
-    /*  if ((readBytes = fread(html_text_buffer, 1, html_fileLength -1, client_read_fp)) == 0) {
-          if (ferror(client_read_fp)) {
-              errorMessage("Could not read from serverIP: ", strerror(errno), progname);
-          }
-      }*/
-    cycles = floor(html_fileLength / CHUNK);
-    for (int i = 0; i < cycles; i++) {
-        readBytes += read(fileno(client_read_fp), chunked, CHUNK);
-        writeBytes += fwrite(chunked, 1, CHUNK, disk_write_fp);
+    // we don't need the pointer anymore free it.
+    free(filename);
+
+    /* Call the write function */
+    writeToDisk(disk_write_fp, client_read_fp, html_fileLength, progname);
+
+    // get filename
+    if (fgets(filenameBuffer, MAXFILENAMELENGTH, client_read_fp) == NULL) {    // fgets uses read descriptor
+        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
     }
+    if (fgets(html_lenghtBuffer, MAXFILELENGTH, client_read_fp) == NULL) {
+        errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+    }
+    int binary_filelenght = extractIntfromString(html_lenghtBuffer, MAXFILELENGTH);
 
-    fprintf(stdout, "Server says: %s\n", html_text_buffer);
-    fprintf(stdout, "Server says: read bytes %d\n", readBytes);
+    fprintf(stdout, "Server says: %s\n", filenameBuffer);
+    fprintf(stdout, "Server says: %s, %d\n", html_lenghtBuffer, binary_filelenght);
+
+    // extract the filename from the field
+    filename = extractFilename(filenameBuffer);
+    fprintf(stderr, "Filename: %s", filename);
+    FILE* binary = fopen(filename, "w");
+
+    /* Call the write function */
+    writeToDisk(binary, client_read_fp, binary_filelenght, progname);
 
     /* Close the read connection from the client, over and out ... */
     if (shutdown(fileno(client_read_fp), SHUT_RDWR) < 0) {
@@ -209,6 +226,64 @@ int main(int argc, const char* argv[]) {
     if (close(fileno(client_read_fp)) < 0) {
         errorMessage("Error in closing socket", strerror(errno), progname);
     }
+}
+
+void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const char* progname) {
+
+    // Create Buffer for the html_text
+    char html_text_buffer[length];
+    memset(html_text_buffer, 0, sizeof(html_text_buffer));       // write 0 in the buffer
+
+    // create partioned textbuffer for continuous reading
+    char* partioned_read_array = malloc(CHUNK);
+
+    // integer declaration for the read and write porcess
+    int readBytes = 0, writeBytes = 0, cycles;
+    // these are the returnvalues of each systemcall
+    int actualRead, actualWrite;
+    // calculate howm many partitions we need
+    cycles = floor(length / CHUNK);
+
+    // read the file chunk wise in and write those chunks to disk
+    for (int i = 0; i < cycles; i++) {
+        readBytes += fread(partioned_read_array, 1, CHUNK, client_read_fp);
+        writeBytes += fwrite(partioned_read_array, 1, CHUNK, disk_write_fp);
+        fprintf(stdout, "Server says: %s\n", partioned_read_array);
+        fprintf(stdout, "Client says: read bytes %d\n", readBytes);
+        fprintf(stdout, "Client says: written bytes %d\n", writeBytes);
+        fprintf(stdout, "Cycle: %d of %d\n", i + 1, cycles);
+    }
+    free(partioned_read_array); // Done with the partitions - free it
+
+    /* Handle the rest */
+    int rest = length - readBytes;
+    fprintf(stdout, "Rest to copy %d\n", rest);
+
+    // read the rest if needed.
+    if (rest > 0) {
+        char* restOfFile = malloc(rest);
+        actualRead = fread(restOfFile, 1, rest, client_read_fp);
+        if (actualRead == 0) {
+            errorMessage("Could not read from server: ", strerror(errno), progname);
+        }
+        readBytes += actualRead;
+
+        actualWrite = fprintf(disk_write_fp, "%s", restOfFile);
+        if (actualWrite == 0) {
+            fclose(disk_write_fp);
+            errorMessage("Could not write to Disk: ", strerror(errno), progname);
+        }
+        writeBytes += actualWrite;
+        fprintf(stdout, "Server says: %s\n", restOfFile);
+        free(restOfFile);   // done with the rest
+    }
+
+    fflush(disk_write_fp);
+    fclose(disk_write_fp);  // close the file
+
+    fprintf(stdout, "Server says: %s\n", html_text_buffer);
+    fprintf(stdout, "Server says: read bytes %d\n", readBytes);
+    fprintf(stdout, "Server says: written bytes %d\n", writeBytes);
 }
 
 static void errorMessage(const char* userMessage, const char* errorMessage, const char* progname) {
@@ -249,6 +324,27 @@ static size_t extractIntfromString(char* buffer, int len) {
 
     result = (size_t) strtol(tempBuffer, NULL, 10);
     return result;
+}
+
+static char* extractFilename(char* filenameBuffer) {
+    int a = 0, b = 0, c = 0;
+    // find the '=' sign
+    while (filenameBuffer[a]) {
+        if (filenameBuffer[a++] == '=')
+            break;
+    }
+    // find the '\0'
+    b = a;
+    while (filenameBuffer[b++]);
+    // create a new array
+    char* filename = malloc(b - a + 1);
+    //copy array
+    while (filenameBuffer[a]) {
+        filename[c++] = filenameBuffer[a++];
+    }
+    filename[c] = '\0';     // 0 - Termination of the filename
+
+    return filename;
 }
 /* usage: simple_message_client options
 options:
