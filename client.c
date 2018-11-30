@@ -24,6 +24,7 @@
 #include <unistd.h>         // provides read(), write(), close()
 #include <netdb.h>          // provides getaddrinfo()
 #include <simple_message_client_commandline_handling.h> // provides smc_parsecommandline()
+#include <math.h>           // provides floor()
 
 
 #define RECEIVERBUFFER 100
@@ -38,7 +39,7 @@ static void usage(FILE* stream, const char* cmnd, int exitcode);
 
 void writeToSocket(int fd_socket, char* message, const char* progname);
 
-static int extractIntfromString(char* buffer, int len);
+static size_t extractIntfromString(char* buffer, int len);
 
 int main(int argc, const char* argv[]) {
     int fd_socket, fd_copy;                     // file descriptor client socket
@@ -51,7 +52,6 @@ int main(int argc, const char* argv[]) {
     int html_fileLength;
     char statusBuffer[STATUSLENGTH];                  // Buffer for the Status
     int status;                                 // integer holds status
-
 
     // Declare variables for the line parser
     const char* serverIP = NULL;
@@ -119,7 +119,7 @@ int main(int argc, const char* argv[]) {
     }
     fprintf(stdout, "Copied the socked descr.: orig:%d copy: %d\n", fd_socket, fd_copy);
 
-    FILE* client_read_fp, * client_write_fp;
+    FILE* client_read_fp, * client_write_fp, * disk_write_fp;
     client_read_fp = fdopen(fd_copy, "r");      // use the copy of the duplicated field descriptor for both file Pointer
     client_write_fp = fdopen(fd_socket, "w");
     if (client_read_fp == NULL || client_write_fp == NULL) {
@@ -178,14 +178,27 @@ int main(int argc, const char* argv[]) {
     fprintf(stdout, "Server says: %s\n", filenameBuffer);
     fprintf(stdout, "Server says: %s, %d\n", html_lenghtBuffer, html_fileLength);
 
+    // open filepointer for disk
+    disk_write_fp = fopen(filenameBuffer, "w");
+
     // Create Buffer for the html_text
     char html_text_buffer[html_fileLength];
-    if (fread(html_text_buffer, CHUNK, html_fileLength, client_read_fp) == 0) {
-        if (ferror(client_read_fp)) {
-            errorMessage("Could not read from serverIP: ", strerror(errno), progname);
-        }
+    char chunked[CHUNK];
+    memset(html_text_buffer, 0, sizeof(html_text_buffer));       // write 0 in the buffer
+    int readBytes = 0, writeBytes = 0, cycles;
+    /*  if ((readBytes = fread(html_text_buffer, 1, html_fileLength -1, client_read_fp)) == 0) {
+          if (ferror(client_read_fp)) {
+              errorMessage("Could not read from serverIP: ", strerror(errno), progname);
+          }
+      }*/
+    cycles = floor(html_fileLength / CHUNK);
+    for (int i = 0; i < cycles; i++) {
+        readBytes += read(fileno(client_read_fp), chunked, CHUNK);
+        writeBytes += fwrite(chunked, 1, CHUNK, disk_write_fp);
     }
+
     fprintf(stdout, "Server says: %s\n", html_text_buffer);
+    fprintf(stdout, "Server says: read bytes %d\n", readBytes);
 
     /* Close the read connection from the client, over and out ... */
     if (shutdown(fileno(client_read_fp), SHUT_RDWR) < 0) {
@@ -226,15 +239,15 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
     exit(exitcode);
 }
 
-static int extractIntfromString(char* buffer, int len) {
+static size_t extractIntfromString(char* buffer, int len) {
     char tempBuffer[len];
-    int resultLen = 0, result;
+    size_t resultLen = 0, result;
     for (int i = 0; i < len; i++) {
         if (buffer[i] >= '0' && buffer[i] <= '9')
             tempBuffer[resultLen++] = buffer[i];
     }
 
-    result = (int) strtol(tempBuffer, NULL, 10);
+    result = (size_t) strtol(tempBuffer, NULL, 10);
     return result;
 }
 /* usage: simple_message_client options
