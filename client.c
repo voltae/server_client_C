@@ -253,7 +253,7 @@ void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const ch
     // @TODO: check for EOF
     bool isEOF = false;
 
-    for (int i = 0; i < cycles; i++) {
+    for (int i = 0; i < cycles && isEOF == false; i++) {
         readBytes += fread(partioned_read_array, 1, CHUNK, client_read_fp);
         // check if EOF
         if (feof(client_read_fp) != 0) {
@@ -282,6 +282,14 @@ void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const ch
             if (actualRead == 0) {
                 errorMessage("Could not read from server: ", strerror(errno), progname);
             }
+            // check if EOF
+            if (feof(client_read_fp) != 0) {
+                isEOF = true;
+            }
+            if (ferror(client_read_fp) != 0) {
+                errorMessage("Error in reading from socket", strerror(errno), progname);
+            }
+
             readBytes += actualRead;
 
             actualWrite = fprintf(disk_write_fp, "%s", restOfFile);
@@ -292,6 +300,7 @@ void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const ch
             writeBytes += actualWrite;
             fprintf(stdout, "Server says: %s\n", restOfFile);
             free(restOfFile);   // done with the rest
+            restOfFile = NULL;
         }
     }
 
