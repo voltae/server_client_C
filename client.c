@@ -229,6 +229,8 @@ int main(int argc, const char* argv[]) {
     if (close(fileno(client_read_fp)) < 0) {
         errorMessage("Error in closing socket", strerror(errno), progname);
     }
+    // close the filestream
+    fclose(client_read_fp);
 }
 
 void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const char* progname) {
@@ -345,8 +347,7 @@ static char* extractFilename(char* filenameBuffer) {
     int a = 0, b = 0, c = 0;
     // find the '=' sign
     while (filenameBuffer[a]) {
-        if (filenameBuffer[a++] == '=')
-            break;
+        if (filenameBuffer[a++] == '=') { break; }
     }
     // find the '\0'
     b = a;
@@ -358,7 +359,8 @@ static char* extractFilename(char* filenameBuffer) {
     while (filenameBuffer[a]) {
         filename[c++] = filenameBuffer[a++];
     }
-    filename[c - 1] = '\0';     // 0 - Termination of the filename
+    // Termination of the filename, delete the '\n' one char before 0.
+    filename[c - 1] = '\0';
 
     return filename;
 }
