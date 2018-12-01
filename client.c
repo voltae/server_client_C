@@ -44,7 +44,7 @@ static void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, c
 
 static size_t extractIntfromString(char* buffer, int len);
 
-static char* extractFilename(char* filenameBuffer);
+static void extractFilename(char* filenameBuffer, char** filename);
 
 
 int main(int argc, const char* argv[]) {
@@ -186,7 +186,8 @@ int main(int argc, const char* argv[]) {
     fprintf(stdout, "Server says: %s, %d\n", html_lenghtBuffer, html_fileLength);
 
     // extract the filename from the field
-    char* filename = extractFilename(filenameBuffer);
+    char* filename = NULL;
+    extractFilename(filenameBuffer, &filename);
     fprintf(stderr, "Filename: %s", filename);
 
     // open filepointer for disk
@@ -194,6 +195,7 @@ int main(int argc, const char* argv[]) {
 
     // we don't need the pointer anymore free it.
     free(filename);
+    filename = NULL;
 
     /* Call the write function */
     writeToDisk(disk_write_fp, client_read_fp, html_fileLength, progname);
@@ -211,9 +213,13 @@ int main(int argc, const char* argv[]) {
     fprintf(stdout, "Server says: %s, %d\n", html_lenghtBuffer, binary_filelenght);
 
     // extract the filename from the field
-    filename = extractFilename(filenameBuffer);
+    extractFilename(filenameBuffer, &filename);
     fprintf(stderr, "Filename: %s", filename);
     FILE* binary = fopen(filename, "w");
+
+    // we don't need the pointer anymore free it.
+    free(filename);
+    filename = NULL;
 
     /* Call the write function */
     writeToDisk(binary, client_read_fp, binary_filelenght, progname);
@@ -240,8 +246,12 @@ void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const ch
     memset(html_text_buffer, 0, sizeof(html_text_buffer));       // write 0 in the buffer
 
     // create partioned textbuffer for continuous reading
-    char* partioned_read_array = malloc(CHUNK);
 
+    char* partioned_read_array = malloc(CHUNK);
+    if (partioned_read_array == NULL) {
+        // @TODO: Close all open ressources
+        errorMessage("Could not allocate memory for buffer.", strerror(errno), progname);
+    }
     // integer declaration for the read and write porcess
     int readBytes = 0, writeBytes = 0, cycles;
     // these are the returnvalues of each systemcall
@@ -278,6 +288,10 @@ void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const ch
         // read the rest if needed.
         if (rest > 0) {
             char* restOfFile = malloc(rest);
+            if (restOfFile == NULL) {
+                // @TODO: Close all open ressources
+                errorMessage("Could not allocate memory for the filebuffer", strerror(errno), progname);
+            }
             actualRead = fread(restOfFile, 1, rest, client_read_fp);
             if (actualRead == 0) {
                 errorMessage("Could not read from server: ", strerror(errno), progname);
@@ -352,7 +366,7 @@ static size_t extractIntfromString(char* buffer, int len) {
     return result;
 }
 
-static char* extractFilename(char* filenameBuffer) {
+static void extractFilename(char* filenameBuffer, char** filename) {
     int a = 0, b = 0, c = 0;
     // find the '=' sign
     while (filenameBuffer[a]) {
@@ -362,17 +376,22 @@ static char* extractFilename(char* filenameBuffer) {
     b = a;
     while (filenameBuffer[b++]); // find endline '\0'
 
+    char* filenameTemp = NULL;
     // create a new array
-    char* filename = malloc(b - a + 1);
+    filenameTemp = malloc((b - a) * sizeof(char));
+    if (filenameTemp == NULL) {
+        // @TODO: Close all open ressources
+        fprintf(stderr, "error allocation memory");
+    }
     //copy array
     while (filenameBuffer[a]) {
-        filename[c++] = filenameBuffer[a++];
+        filenameTemp[c++] = filenameBuffer[a++];
     }
     // Termination of the filename, delete the '\n' one char before 0.
-    filename[c - 1] = '\0';
-
-    return filename;
+    filenameTemp[c - 1] = '\0';
+    *filename = filenameTemp;
 }
+
 /* usage: simple_message_client options
 options:
 	-s, --server <server>   full qualified domain name or IP address of the server
