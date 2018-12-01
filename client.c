@@ -25,6 +25,7 @@
 #include <netdb.h>          // provides getaddrinfo()
 #include <simple_message_client_commandline_handling.h> // provides smc_parsecommandline()
 #include <math.h>           // provides floor()
+#include <stdbool.h>        // provides true, false
 
 
 #define RECEIVERBUFFER 100
@@ -218,9 +219,11 @@ int main(int argc, const char* argv[]) {
     writeToDisk(binary, client_read_fp, binary_filelenght, progname);
 
     /* Close the read connection from the client, over and out ... */
-    if (shutdown(fileno(client_read_fp), SHUT_RDWR) < 0) {
+    int lastshutdown;
+    if ((lastshutdown = shutdown(fileno(client_read_fp), SHUT_RDWR)) == -1) {
         errorMessage("Could not close the RD socket: ", strerror(errno), progname);
     }
+    printf("Last shutdown exit code: %d\n", lastshutdown);
 
     // CLOSE() - The read end
     if (close(fileno(client_read_fp)) < 0) {
@@ -245,8 +248,18 @@ void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const ch
     cycles = floor(length / CHUNK);
 
     // read the file chunk wise in and write those chunks to disk
+    // @TODO: check for EOF
+    bool isEOF = false;
+
     for (int i = 0; i < cycles; i++) {
         readBytes += fread(partioned_read_array, 1, CHUNK, client_read_fp);
+        // check if EOF
+        if (feof(client_read_fp) != 0) {
+            isEOF = true;
+        }
+        if (ferror(client_read_fp) != 0) {
+            errorMessage("Error in reading from socket", strerror(errno), progname);
+        }
         writeBytes += fwrite(partioned_read_array, 1, CHUNK, disk_write_fp);
         fprintf(stdout, "Server says: %s\n", partioned_read_array);
         fprintf(stdout, "Client says: read bytes %d\n", readBytes);
@@ -255,27 +268,29 @@ void writeToDisk(FILE* disk_write_fp, FILE* client_read_fp, int length, const ch
     }
     free(partioned_read_array); // Done with the partitions - free it
 
-    /* Handle the rest */
-    int rest = length - readBytes;
-    fprintf(stdout, "Rest to copy %d\n", rest);
+    /* Handle the rest , only when EOF is not set*/
+    if (isEOF == false) {
+        int rest = length - readBytes;
+        fprintf(stdout, "Rest to copy %d\n", rest);
 
-    // read the rest if needed.
-    if (rest > 0) {
-        char* restOfFile = malloc(rest);
-        actualRead = fread(restOfFile, 1, rest, client_read_fp);
-        if (actualRead == 0) {
-            errorMessage("Could not read from server: ", strerror(errno), progname);
-        }
-        readBytes += actualRead;
+        // read the rest if needed.
+        if (rest > 0) {
+            char* restOfFile = malloc(rest);
+            actualRead = fread(restOfFile, 1, rest, client_read_fp);
+            if (actualRead == 0) {
+                errorMessage("Could not read from server: ", strerror(errno), progname);
+            }
+            readBytes += actualRead;
 
-        actualWrite = fprintf(disk_write_fp, "%s", restOfFile);
-        if (actualWrite == 0) {
-            fclose(disk_write_fp);
-            errorMessage("Could not write to Disk: ", strerror(errno), progname);
+            actualWrite = fprintf(disk_write_fp, "%s", restOfFile);
+            if (actualWrite == 0) {
+                fclose(disk_write_fp);
+                errorMessage("Could not write to Disk: ", strerror(errno), progname);
+            }
+            writeBytes += actualWrite;
+            fprintf(stdout, "Server says: %s\n", restOfFile);
+            free(restOfFile);   // done with the rest
         }
-        writeBytes += actualWrite;
-        fprintf(stdout, "Server says: %s\n", restOfFile);
-        free(restOfFile);   // done with the rest
     }
 
     fflush(disk_write_fp);
@@ -335,14 +350,15 @@ static char* extractFilename(char* filenameBuffer) {
     }
     // find the '\0'
     b = a;
-    while (filenameBuffer[b++]);
+    while (filenameBuffer[b++]); // find endline '\0'
+
     // create a new array
     char* filename = malloc(b - a + 1);
     //copy array
     while (filenameBuffer[a]) {
         filename[c++] = filenameBuffer[a++];
     }
-    filename[c] = '\0';     // 0 - Termination of the filename
+    filename[c - 1] = '\0';     // 0 - Termination of the filename
 
     return filename;
 }
