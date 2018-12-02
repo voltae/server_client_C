@@ -21,8 +21,7 @@
 #include <math.h>           // provides floor()
 #include <stdbool.h>        // provides true, false
 
-/** @def length */
-#define RECEIVERBUFFER 100
+
 /** @def length of the field status max 10 */
 #define STATUSLENGTH 10
 /** @def length of the field filename max 255 bytes */
