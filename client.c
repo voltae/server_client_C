@@ -1,18 +1,12 @@
 /**
  * @author Valentin Platzgummer - ic17b096
+ * @author Lara Kammerer - ic17b001
  * @date 18.11.18
  *
- * @brief Implementation of a simplle client Application to work with a server
+ * @brief Implementation of a simple client Application to work with a server
  * TCP/IP Lecture Distrubted Systems
  */
 
-/* Client needs following syscalls
- * socket()
- * connect()
- * write()
- * read()
- * close()
- */
 
 #include <stdlib.h>         // provides exit(), EXIT_FAILURE
 #include <stdio.h>          // provides the printf()
@@ -27,23 +21,27 @@
 #include <math.h>           // provides floor()
 #include <stdbool.h>        // provides true, false
 
-
+/** @def length */
 #define RECEIVERBUFFER 100
+/** @def length of the field status max 10 */
 #define STATUSLENGTH 10
+/** @def length of the field filename max 255 bytes */
 #define MAXFILENAMELENGTH 255
-#define MAXFILELENGTH 10        // i.e 10^10 Bytes far enough
+/** @def length of the field file length max 10 bytes i.e 10^10 Bytes far enough */
+#define MAXFILELENGTH 10
+/** @def chunck size of the reading buffer  */
 #define CHUNK 256
 
 /**
- * All ressources are stored here
+ * @brief ressourcesContainer stores all needed ressources in one single place
  */
 typedef struct ressourcesContainer {
-    FILE* client_read_fp;
-    FILE* client_write_fp;
-    FILE* client_write_disk_fp;
-    int fd_read_sock;
-    int fd_write_sock;
-    const char* progname;
+    FILE* client_read_fp;           /**< File Pointer for Read operation */
+    FILE* client_write_fp;          /**< File Pointer for Write operation */
+    FILE* client_write_disk_fp;     /**< File Pointer for Hard Disk operation */
+    int fd_read_sock;               /**< Socket for Read operation */
+    int fd_write_sock;              /**< Socket for Write operation */
+    const char* progname;           /**< Program Name argv[0] */
 } ressourcesContainer;
 
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources);
@@ -427,7 +425,7 @@ static void extractFilename(char* filenameBuffer, char** filename, ressourcesCon
     b = a;
     while (filenameBuffer[b++]); // find endline '\0'
     // Filename is too long, pritn out an error
-    if (b >= MAXFILENAMELENGTH) {
+    if (b >= MAXFILENAMELENGTH - 1) {
         closeAllRessources(ressources);
         errorMessage("Filename is to long", "Buffer overflow", ressources);
     }
