@@ -56,7 +56,7 @@ static void writeToDisk(int length, ressourcesContainer* ressources);
 
 static int extractIntfromString(char* buffer, int len);
 
-static void extractFilename(char* filenameBuffer, char** filename);
+static void extractFilename(char* filenameBuffer, char** filename, ressourcesContainer* ressources);
 
 static void closeAllRessources(ressourcesContainer* ressources);
 
@@ -225,7 +225,7 @@ int main(int argc, const char* argv[]) {
 
     // extract the filename from the field
     char* filename = NULL;
-    extractFilename(filenameBuffer, &filename);
+    extractFilename(filenameBuffer, &filename, ressources);
     fprintf(stderr, "Filename: %s", filename);
 
     // open filepointer for disk
@@ -253,7 +253,7 @@ int main(int argc, const char* argv[]) {
     fprintf(stdout, "Server says: %s, %d\n", html_lenghtBuffer, binary_filelenght);
 
     // extract the filename from the field
-    extractFilename(filenameBuffer, &filename);
+    extractFilename(filenameBuffer, &filename, ressources);
     fprintf(stderr, "Filename: %s", filename);
     ressources->client_write_disk_fp = fopen(filename, "w");
 
@@ -280,6 +280,9 @@ int main(int argc, const char* argv[]) {
     // close the filestream
     fclose(ressources->client_read_fp);
     ressources->client_read_fp = NULL;
+
+    // Everything went well, deallocate the ressources struct
+    free(ressources);
 }
 
 void writeToDisk(int length, ressourcesContainer* ressources) {
@@ -413,7 +416,8 @@ static int extractIntfromString(char* buffer, int len) {
     return result;
 }
 
-static void extractFilename(char* filenameBuffer, char** filename) {
+//
+static void extractFilename(char* filenameBuffer, char** filename, ressourcesContainer* ressources) {
     int a = 0, b = 0, c = 0;
     // find the '=' sign
     while (filenameBuffer[a]) {
@@ -422,7 +426,11 @@ static void extractFilename(char* filenameBuffer, char** filename) {
     // find the '\0'
     b = a;
     while (filenameBuffer[b++]); // find endline '\0'
-
+    // Filename is too long, pritn out an error
+    if (b >= MAXFILENAMELENGTH) {
+        closeAllRessources(ressources);
+        errorMessage("Filename is to long", "Buffer overflow", ressources);
+    }
     char* filenameTemp = NULL;
     // create a new array
     filenameTemp = malloc((b - a) * sizeof(char));
