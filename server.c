@@ -18,14 +18,13 @@
 /*@TODO Replace testing addresses with user defined from args
  * Ihr Client soll genauso wie die Musterimplementierung (simple_message_client(1))
  * sowohl mit IPV4 als auch mit IPV6 funktionieren. */
-#define RECEIVERBUFFER 100
 
-/*@TODO Replace testing addresses with user defined from args */
-
-
+/**
+ * @brief Struct holds all needed ressources
+ */
 typedef struct ressources {
-    int fd_socket_listen;
-    int fd_socket_connected;
+    int fd_socket_listen;  /**< File descriptor for the listening socket */
+    int fd_socket_connected; /**< File descriptor for the connected socket */
 } ressources;
 
 #define BACKLOG 5
@@ -73,7 +72,7 @@ int main(int argc, char* const* argv) {
    into binary data in network byte order.  */
     server_add.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    // Set socket options to reuser address
+    // Set socket options to reuse address
     int retval;
     int optval;
     retval = setsockopt(serverRessources.fd_socket_listen, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
