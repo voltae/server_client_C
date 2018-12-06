@@ -2,8 +2,7 @@
  * @author Valentin Platzgummer - ic17b096
  * @author Lara Kammerer - ic17b001
  * @date 18.11.18
- *
- * @brief Implementation of a simple client Application to work with a server
+ * @brief Implementation of a simple client application to communicate with a server application
  * TCP/IP Lecture Distrubted Systems
  */
 
@@ -31,23 +30,25 @@
 /** @def chunck size of the reading buffer  */
 #define CHUNK 256
 
+#define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
 /**
  * @brief ressourcesContainer stores all needed ressources in one single place
  */
 typedef struct ressourcesContainer {
-    FILE* filepointerClientRead;           /**< File Pointer for Read operation */
-    FILE* filepointerClientWrite;          /**< File Pointer for Write operation */
-    FILE* clientWriteDiskFp;     /**< File Pointer for Hard Disk operation */
-    int socketDescriptorRead;               /**< Socket for Read operation */
-    int socketDescriptorWrite;              /**< Socket for Write operation */
-    const char* progname;           /**< Program Name argv[0] */
+    FILE* filepointerClientRead;             /**< File Pointer for Read operation */
+    FILE* filepointerClientWrite;            /**< File Pointer for Write operation */
+    FILE* clientWriteDiskFp;                 /**< File Pointer for Hard Disk operation */
+    int socketDescriptorRead;                /**< Socket for Read operation */
+    int socketDescriptorWrite;               /**< Socket for Write operation */
+    const char* progname;                    /**< Program Name argv[0] */
+    int verbose;                             /**< Output in verbose mode 0 off, 1 on */
 } ressourcesContainer;
 
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
-//static void writeToSocket(int fd_socket, char* message, const char* progname);
+static void printAddress(struct sockaddr* sockaddr);
 
 static void writeToDisk(int length, ressourcesContainer* ressources);
 
@@ -60,48 +61,51 @@ static void closeAllRessources(ressourcesContainer* ressources);
 int main(int argc, const char* argv[]) {
     struct addrinfo* serveraddr, * currentServerAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
     struct addrinfo hints;                      // Hints struct for the addr info function
-    //   char remotehost[INET6_ADDRSTRLEN];       // char holding the remote host with 46 len
-	char statusBuffer[STATUSLENGTH];                  // Buffer for the Status
-	int extractedStatus;                                 // integer holds status
+    char statusBuffer[STATUSLENGTH];                  // Buffer for the Status
+    int extractedStatus;                                 // integer holds status
     char filenameBuffer[MAXFILENAMELENGTH]; // Buffer for File name max 255 Chars
     char htmlLenghtBuffer[MAXFILELENGTH];                  // Max size of length
     int extractedHtmlFileLength;
 
-	//--------------------------------------------------
+    //--------------------------------------------------
     //----------allocate the ressources struct----------
-	//--------------------------------------------------
+    //--------------------------------------------------
     //@TODO: deallocate struct
     ressourcesContainer* ressources = malloc(sizeof(ressourcesContainer));
     if (ressources == NULL) {
-		//nicht über fkt errorMessage?----------------------------------------------------------------------------------------------------------------------------------
+        //nicht ï¿½ber fkt errorMessage?----------------------------------------------------------------------------------------------------------------------------------
         fprintf(stderr, "%s: Could not allocate memory: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     }
 
-	//--------------------------------------------
+    //--------------------------------------------
     //----------set al values to default----------
-	//--------------------------------------------
+    //--------------------------------------------
     ressources->filepointerClientRead = NULL;
     ressources->filepointerClientWrite = NULL;
     ressources->clientWriteDiskFp = NULL;
     ressources->socketDescriptorRead = -1;
     ressources->socketDescriptorWrite = -1;
     ressources->progname = argv[0];
+    ressources->verbose = 0;
 
-	//---------------------------------------------------------
+    //---------------------------------------------------------
     //----------declare variables for the line parser----------
-	//---------------------------------------------------------
+    //---------------------------------------------------------
     const char* serverIP = NULL;
     const char* serverPort = NULL;
     const char* user = NULL;
     const char* messageOut = NULL;
     const char* imgUrl = NULL;
-    int verbose = 0;
-    // call the argument parser
-    smc_parsecommandline(argc, argv, usage, &serverIP, &serverPort, &user, &messageOut, &imgUrl, &verbose);
 
-    fprintf(stdout, "serverIP: %s, serverPort: %s, messageOut: %s, image_url: %s\n", serverIP, serverPort, messageOut,
-            imgUrl);
+    // call the argument parser
+    smc_parsecommandline(argc, argv, usage, &serverIP, &serverPort, &user, &messageOut, &imgUrl, &ressources->verbose);
+
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Using this options: serverIP: %s, serverPort: %s, messageOut: %s, image_url: %s\n",
+                serverIP, serverPort, messageOut, imgUrl);
+    }
 
     // Get the type of connection Hint struct!
     memset(&hints, 0, sizeof(hints));   // set to NULL
@@ -109,35 +113,42 @@ int main(int argc, const char* argv[]) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = 0;              // redundand da eh null von vorher
     hints.ai_flags = 0;
-	//----------------------------------------------------
-	//----------initialise members of serveraddr----------
-	//----------------------------------------------------
+    //----------------------------------------------------
+    //----------initialise members of serveraddr----------
+    //----------------------------------------------------
     int addrinfoError = 0;
-    if ((addrinfoError = getaddrinfo(serverIP, serverPort, &hints, &serveraddr) != 0)) { //getaddrinfo returns 0 if succeeded, works on serveraddr & hints with known serverPort&IP
-		//nicht über fkt errorMessage?----------------------------------------------------------------------------------------------------------------------------------
+    if ((addrinfoError = getaddrinfo(serverIP, serverPort, &hints, &serveraddr) !=
+                         0)) { //getaddrinfo returns 0 if succeeded, works on serveraddr & hints with known serverPort&IP
+        //nicht ï¿½ber fkt errorMessage?----------------------------------------------------------------------------------------------------------------------------------
         errorMessage("Could not resolve hostname.", gai_strerror(addrinfoError), ressources);
     }
     // use the struct coming from getaddrinfo
 
-	//--------------------------------------------------------------------------
-	//----------connect client to serverSocket (socketDescriptorWrite)----------
-	//--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    //----------connect client to serverSocket (socketDescriptorWrite)----------
+    //--------------------------------------------------------------------------
     // looping though the linked list to find a working address
-    for (currentServerAddr = serveraddr; currentServerAddr != NULL; currentServerAddr = currentServerAddr->ai_next) {
+    for (currentServerAddr = serveraddr;
+         currentServerAddr != NULL; currentServerAddr = currentServerAddr->ai_next) {
         // Create a SOCKET(), return value is a file descriptor
-		//socket returns socket descriptor (int), negative value if failed
-        ressources->socketDescriptorWrite = socket(currentServerAddr->ai_family, currentServerAddr->ai_socktype, currentServerAddr->ai_protocol);
+        //socket returns socket descriptor (int), negative value if failed
+        ressources->socketDescriptorWrite = socket(currentServerAddr->ai_family, currentServerAddr->ai_socktype,
+                                                   currentServerAddr->ai_protocol);
         if (ressources->socketDescriptorWrite < 0) {
-			//nicht über errorMessage?----------------------------------------------------------------------------------------------------------------------------------
+            //nicht ï¿½ber errorMessage?----------------------------------------------------------------------------------------------------------------------------------
             fprintf(stderr, "Could not create a socket:\n");
             continue; // try next pointer
         }
-        fprintf(stdout, "Client Socket created.\n");
+        if (ressources->verbose == 1) {
+            LINEOUTPUT;
+            fprintf(stdout, "Client Socket created.\n");
+        }
         // try to CONNECT() to the serverIP
-		//connect returns -1 if failed to connect
-        int success = connect(ressources->socketDescriptorWrite, currentServerAddr->ai_addr, currentServerAddr->ai_addrlen);
+        //connect returns -1 if failed to connect
+        int success = connect(ressources->socketDescriptorWrite, currentServerAddr->ai_addr,
+                              currentServerAddr->ai_addrlen);
         if (success == -1) {
-			//nicht über errorMessage?----------------------------------------------------------------------------------------------------------------------------------
+            //nicht ï¿½ber errorMessage?----------------------------------------------------------------------------------------------------------------------------------
             fprintf(stderr, "Could not connect to a Server: %s\n", gai_strerror(success));
             close(ressources->socketDescriptorWrite);  // connection failed, close socket.
             continue;   // try next pointer
@@ -156,28 +167,39 @@ int main(int argc, const char* argv[]) {
 
     /* inet_ntop: Convert Internet number in IN to ASCII representation.  The return value
    is a pointer to an internal array containing the string.*/
-    fprintf(stdout, "... Connection to Server: established\n");
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, " ... Connection to Server established: ");
+        printAddress(serveraddr->ai_addr);
+    }
 
     /* Here begins the write read loop of the client */
 
-	//---------------------------------------------------------------------------------
-	//----------establish reading connection to server (socketDescriptorRead)----------
-	//---------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------
+    //----------establish reading connection to server (socketDescriptorRead)----------
+    //---------------------------------------------------------------------------------
     /* using filepointer instead of write */
     /* convert the file descriptor to a File Pointer */
-	//dup returns -1 if failed, descriptor if succeeded
+    //dup returns -1 if failed, descriptor if succeeded
     if ((ressources->socketDescriptorRead = dup(ressources->socketDescriptorWrite)) == -1) {
         closeAllRessources(ressources);
         errorMessage("Error in duplicating file descriptor", strerror(errno), ressources);
     }
-    fprintf(stdout, "Copied the socked descr.: orig:%d copy: %d\n", ressources->socketDescriptorWrite,
-            ressources->socketDescriptorRead);
-
-	//---------------------------------------------------------------------------------------------------
-	//----------open Filepointer to write/read (filepointerClientRead & filepointerClientWrite)----------
-	//---------------------------------------------------------------------------------------------------
-	//fdopen returns NULL if failed
-    ressources->filepointerClientRead = fdopen(ressources->socketDescriptorRead, "r");      // use the copy of the duplicated field descriptor for both file Pointer
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Copied the socked descr.: orig:%d copy: %d\n",
+                ressources->socketDescriptorWrite, ressources->socketDescriptorRead);
+    }
+    if (ressources->verbose == 1) {
+        fprintf(stdout, "[%s, %s, %d]: Creating a write socket\n",
+                __FILE__, __func__, __LINE__);
+    }
+    //---------------------------------------------------------------------------------------------------
+    //----------open Filepointer to write/read (filepointerClientRead & filepointerClientWrite)----------
+    //---------------------------------------------------------------------------------------------------
+    //fdopen returns NULL if failed
+    ressources->filepointerClientRead = fdopen(ressources->socketDescriptorRead,
+                                               "r");      // use the copy of the duplicated field descriptor for both file Pointer
     ressources->filepointerClientWrite = fdopen(ressources->socketDescriptorWrite, "w");
 
     if (ressources->filepointerClientRead == NULL || ressources->filepointerClientWrite == NULL) {
@@ -185,20 +207,21 @@ int main(int argc, const char* argv[]) {
         closeAllRessources(ressources);
         errorMessage("Could not create a File Pointer", strerror(errno), ressources);
     }
-
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Creating filepointer for reading and writing\n");
+    }
     ssize_t sentBytes; //recbytes;
     if (imgUrl == NULL) {
-		//fprintf returns bytes written to messageOut
+        //fprintf returns bytes written to messageOut
         sentBytes = fprintf(ressources->filepointerClientWrite, "user=%s\n%s", user, messageOut);
     } else {
         sentBytes = fprintf(ressources->filepointerClientWrite, "user=%s\nimg=%s\n%s", user, imgUrl, messageOut);
     }
-    // Outcommented we work with the filepointer and fprintf -- then why still here?-----------------------------------------------------------------------------------------------
-    //sendbytes = write(fd_socket, messageOut, sizeof(messageOut));
-    //if (sendbytes < 0) {
-    //    closeAllRessources(ressources);
-    //    errorMessage("Could not write to serverIP: ", strerror(errno), ressources);
-    //}
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Send %ld Bytes to the server\n", sentBytes);
+    }
     if (sentBytes == -1) {
         // an error occured during write, close the file descriptor
         closeAllRessources(ressources);
@@ -215,23 +238,35 @@ int main(int argc, const char* argv[]) {
         closeAllRessources(ressources);
         errorMessage("Could not close the WR socket: ", strerror(errno), ressources);
     } // outcommented for testing
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Shutdown Write Socket\n");
+    }
 
     fclose(ressources->filepointerClientWrite);
     ressources->filepointerClientWrite = NULL;
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Close Write Filepointer\n");
+    }
 
     // @TODO: close ressources in error case.
     // Get status
-    if (fgets(statusBuffer, STATUSLENGTH, ressources->filepointerClientRead) == NULL) {     // fgets uses read descriptor
+    if (fgets(statusBuffer, STATUSLENGTH, ressources->filepointerClientRead) ==
+        NULL) {     // fgets uses read descriptor
         closeAllRessources(ressources);
         errorMessage("Could not read from server: ", strerror(errno), ressources);
     }
 
     extractedStatus = extractIntfromString(statusBuffer, strlen(statusBuffer));
-    fprintf(stdout, "Server says: %s\n", statusBuffer);
-    fprintf(stdout, "Status is: %d\n", extractedStatus);
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Status is: %d\n", extractedStatus);
+    }
 
     // get filename
-    if (fgets(filenameBuffer, MAXFILENAMELENGTH, ressources->filepointerClientRead) == NULL) {    // fgets uses read descriptor
+    if (fgets(filenameBuffer, MAXFILENAMELENGTH, ressources->filepointerClientRead) ==
+        NULL) {    // fgets uses read descriptor
         closeAllRessources(ressources);
         errorMessage("Could not read from server: ", strerror(errno), ressources);
     }
@@ -242,14 +277,18 @@ int main(int argc, const char* argv[]) {
     }
     extractedHtmlFileLength = extractIntfromString(htmlLenghtBuffer, MAXFILELENGTH);
 
-    fprintf(stdout, "Server says: %s\n", filenameBuffer);
-    fprintf(stdout, "Server says: %s, %d\n", htmlLenghtBuffer, extractedHtmlFileLength);
-
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "html buffer: %s,  length: %d\n",
+                htmlLenghtBuffer, extractedHtmlFileLength);
+    }
     // extract the filename from the field
     char* filename = NULL;
     extractFilename(filenameBuffer, &filename, ressources);
-    fprintf(stderr, "Filename: %s", filename);
-
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Filename: %s\n", filename);
+    }
     // open filepointer for disk
     ressources->clientWriteDiskFp = fopen(filename, "w");
 
@@ -261,7 +300,8 @@ int main(int argc, const char* argv[]) {
     writeToDisk(extractedHtmlFileLength, ressources);
 
     // get filename
-    if (fgets(filenameBuffer, MAXFILENAMELENGTH, ressources->filepointerClientRead) == NULL) {    // fgets uses read descriptor
+    if (fgets(filenameBuffer, MAXFILENAMELENGTH, ressources->filepointerClientRead) ==
+        NULL) {    // fgets uses read descriptor
         closeAllRessources(ressources);
         errorMessage("Could not read from serverIP: ", strerror(errno), ressources);
     }
@@ -271,12 +311,14 @@ int main(int argc, const char* argv[]) {
     }
     int binary_filelenght = extractIntfromString(htmlLenghtBuffer, MAXFILELENGTH);
 
-    fprintf(stdout, "Server says: %s\n", filenameBuffer);
-    fprintf(stdout, "Server says: %s, %d\n", htmlLenghtBuffer, binary_filelenght);
+    fprintf(stdout, "html length buffer: %s, html parsed: %d\n", htmlLenghtBuffer, binary_filelenght);
 
     // extract the filename from the field
     extractFilename(filenameBuffer, &filename, ressources);
-    fprintf(stderr, "Filename: %s", filename);
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Filename: %s\n", filename);
+    }
     ressources->clientWriteDiskFp = fopen(filename, "w");
 
     // we don't need the pointer anymore free it.
@@ -292,19 +334,30 @@ int main(int argc, const char* argv[]) {
         closeAllRessources(ressources);
         errorMessage("Could not close the RD socket: ", strerror(errno), ressources);
     }
-    printf("Last shutdown exit code: %d\n", lastshutdown);
-
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Shutdown Read Socket\n");
+    }
     // CLOSE() - The read end
     if (close(fileno(ressources->filepointerClientRead)) < 0) {
         closeAllRessources(ressources);
         errorMessage("Error in closing socket", strerror(errno), ressources);
     }
+
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Close Read Filepointer\n");
+    }
     // close the filestream
     fclose(ressources->filepointerClientRead);
     ressources->filepointerClientRead = NULL;
-
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Closing Filestream Client Read \n");
+    }
     // Everything went well, deallocate the ressources struct
     free(ressources);
+    return extractedStatus;
 }
 
 void writeToDisk(int length, ressourcesContainer* ressources) {
@@ -330,6 +383,10 @@ void writeToDisk(int length, ressourcesContainer* ressources) {
     // read the file chunk wise in and write those chunks to disk
     // @TODO: check for EOF
     bool isEOF = false;
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Begin the read process.\n");
+    }
 
     for (int i = 0; i < cycles && isEOF == false; i++) {
         readBytes += fread(partioned_read_array, 1, CHUNK, ressources->filepointerClientRead);
@@ -342,17 +399,24 @@ void writeToDisk(int length, ressourcesContainer* ressources) {
             errorMessage("Error in reading from socket", strerror(errno), ressources);
         }
         writeBytes += fwrite(partioned_read_array, 1, CHUNK, ressources->clientWriteDiskFp);
-        fprintf(stdout, "Server says: %s\n", partioned_read_array);
-        fprintf(stdout, "Client says: read bytes %d\n", readBytes);
-        fprintf(stdout, "Client says: written bytes %d\n", writeBytes);
-        fprintf(stdout, "Cycle: %d of %d\n", i + 1, cycles);
+        if (ressources->verbose == 1) {
+            LINEOUTPUT;
+            fprintf(stdout, "Read bytes %d from Server\n", readBytes);
+            LINEOUTPUT;
+            fprintf(stdout, "Written bytes %d to disk\n", writeBytes);
+            LINEOUTPUT;
+            fprintf(stdout, "Number ofCycle: %d of %d\n", i + 1, cycles);
+        }
     }
     free(partioned_read_array); // Done with the partitions - free it
 
     /* Handle the rest , only when EOF is not set*/
     if (isEOF == false) {
         int rest = length - readBytes;
-        fprintf(stdout, "Rest to copy %d\n", rest);
+        if (ressources->verbose == 1) {
+            LINEOUTPUT;
+            fprintf(stdout, "Rest to copy %d\n", rest);
+        }
 
         // read the rest if needed.
         if (rest > 0) {
@@ -382,7 +446,10 @@ void writeToDisk(int length, ressourcesContainer* ressources) {
                 errorMessage("Could not write to Disk: ", strerror(errno), ressources);
             }
             writeBytes += actualWrite;
-            fprintf(stdout, "Server says: %s\n", restOfFile);
+            if (ressources->verbose == 1) {
+                LINEOUTPUT;
+                fprintf(stdout, "Copied the rest to disk");
+            }
             free(restOfFile);   // done with the rest
             restOfFile = NULL;
         }
@@ -391,15 +458,20 @@ void writeToDisk(int length, ressourcesContainer* ressources) {
     fflush(ressources->clientWriteDiskFp);
     fclose(ressources->clientWriteDiskFp);  // close the file
     ressources->clientWriteDiskFp = NULL;
-
-    fprintf(stdout, "Server says: %s\n", html_text_buffer);
-    fprintf(stdout, "Server says: read bytes %d\n", readBytes);
-    fprintf(stdout, "Server says: written bytes %d\n", writeBytes);
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Read bytes %d from Server\n", readBytes);
+        LINEOUTPUT;
+        fprintf(stdout, "Written bytes %d to disk\n", writeBytes);
+    }
 }
 
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources) {
     fprintf(stderr, "%s: %s %s\n", ressources->progname, userMessage, errorMessage);
-    free(ressources);       // deallocate the ressources before leaving program
+    if (ressources != NULL) {
+        free(ressources);       // deallocate the ressources before leaving program
+        ressources = NULL;
+    }
     exit(EXIT_FAILURE);
 }
 
@@ -435,6 +507,7 @@ static int extractIntfromString(char* buffer, int len) {
     }
     // @TODO: return -1 when eror and handle it in caller function------------------------------------------------------------------------------------------------------
     result = (int) strtol(tempBuffer, NULL, 10);
+
     return result;
 }
 
@@ -457,8 +530,7 @@ static void extractFilename(char* filenameBuffer, char** filename, ressourcesCon
     // create a new array
     filenameTemp = malloc((b - a) * sizeof(char));
     if (filenameTemp == NULL) {
-        // @TODO: Close all open ressources
-        fprintf(stderr, "error allocation memory");
+        errorMessage("error allocation memory", strerror(errno), ressources);
     }
     //copy array
     while (filenameBuffer[a]) {
@@ -491,6 +563,25 @@ static void closeAllRessources(ressourcesContainer* ressources) {
         ressources->clientWriteDiskFp = NULL;
     }
 
+}
+
+/**
+ * @brief print the socket address and port to stdout
+ * @param sockaddr sockaddr_in: given socket addres
+ */
+static void printAddress(struct sockaddr* sockaddr) {
+    char address_ip4[INET_ADDRSTRLEN];
+    char address_ip6[INET6_ADDRSTRLEN];
+    switch (sockaddr->sa_family) {
+        case AF_INET:
+            inet_ntop(AF_INET, &(((struct sockaddr_in*) sockaddr)->sin_addr), address_ip4, INET_ADDRSTRLEN);
+            fprintf(stdout, "%s:%d\n", address_ip4, ntohs(((struct sockaddr_in*) sockaddr)->sin_port));
+            break;
+        case AF_INET6:
+            inet_ntop(AF_INET6, &(((struct sockaddr_in6*) sockaddr)->sin6_addr), address_ip6, INET6_ADDRSTRLEN);
+            fprintf(stdout, "%s:%d\n", address_ip6, ntohs(((struct sockaddr_in6*) sockaddr)->sin6_port));
+            break;
+    }
 }
 
 /* usage: simple_message_client options

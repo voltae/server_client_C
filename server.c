@@ -14,6 +14,7 @@
 #include <arpa/inet.h>      // provides inet_address
 #include <unistd.h>         // provides read(), write(), close()
 #include <wait.h>           // provides waitpid()
+#include <netdb.h>
 
 /*@TODO Replace testing addresses with user defined from args
  * Ihr Client soll genauso wie die Musterimplementierung (simple_message_client(1))
@@ -46,14 +47,13 @@ static void usage(FILE* stream, const char* cmnd, int exitcode);
 
 static void closeRessources(ressources res);
 
+static void printAddress(struct sockaddr* sockaddr);
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port);
 
 static void sigchild_handler(int s);
 
 
 int main(int argc, char* const* argv) {
-    // char buffer[RECEIVERBUFFER] = {"\0"};
-    // char messageServer[] = "The Server is saying annoying things.";
 
     // file descriptor socket server
     ressources serverRessources;
@@ -101,8 +101,8 @@ int main(int argc, char* const* argv) {
         errorMessage("Could not listen to socket: ", strerror(errno), progname);
     }
 
-    fprintf(stdout, "Server listen on Port :%d.\n",
-            ntohs(server_add.sin_port));
+    fprintf(stdout, "Server listen on: ");
+    printAddress(&server_add);
     fprintf(stdout, "Server listening. Waiting ...\n");
 
     // add the child handler to the address struct
@@ -115,11 +115,8 @@ int main(int argc, char* const* argv) {
     }
     // Endless loop, Server must be killed manually
     socklen_t len_client = sizeof(client_add);
-    // int rec_size;   // bytes received from client
 
-    //@TODO Server should act as spawning Server
-    // Die Businesslogic des Servers brauchen Sie nicht zu implementieren.
-    // - Verwenden Sie das fertige Executable simple_message_server_logic(1) im Sinne eines spawning servers.
+    // start the spawing
     while (1) {
         serverRessources.fd_socket_connected = accept(serverRessources.fd_socket_listen, (struct sockaddr*) &client_add,
                                                       &len_client);
@@ -127,8 +124,9 @@ int main(int argc, char* const* argv) {
             errorMessage("Could not accept socket: ", strerror(errno), progname);
         }
 
-        fprintf(stdout, "Got connection from: %d\n",
-                ntohs(client_add.sin_addr.s_addr));
+        fprintf(stdout, "Got connection from: ");
+        printAddress(&client_add);
+
         int fork_return = fork();
         if (fork_return == -1) {
             // child process routine
@@ -254,6 +252,24 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
     fprintf(stream, "\t-h, --help\n");
     exit(exitcode);
 }
+
+/**
+ * @brief print the socket address and port to stdout
+ * @param sockaddr sockaddr_in: given socket addres
+ */
+static void printAddress(struct sockaddr* sockaddr) {
+    char address_ip4[INET_ADDRSTRLEN];
+    char address_ip6[INET6_ADDRSTRLEN];
+    switch (sockaddr->sa_family) {
+        case AF_INET:
+            inet_ntop(AF_INET, &(((struct sockaddr_in*) sockaddr)->sin_addr), address_ip4, INET_ADDRSTRLEN);
+            fprintf(stdout, "%s:%d\n", address_ip4, ntohs(((struct sockaddr_in*) sockaddr)->sin_port);
+        case AF_INET6:
+            inet_ntop(AF_INET6, &(((struct sockaddr_in6*) sockaddr)->sin6_addr), address_ip6, INET6_ADDRSTRLEN);
+            fprintf(stdout, "%s:%d\n", address_ip6, ntohs(((struct sockaddr_in6*) sockaddr)->sin6_port);
+    }
+}
+
 /* usage: simple_message_server option
 options:
 	-p, --port <port>
