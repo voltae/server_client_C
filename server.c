@@ -20,15 +20,24 @@
  * sowohl mit IPV4 als auch mit IPV6 funktionieren. */
 
 /**
- * @brief Struct holds all needed ressources
+ * @brief Struct holds all needed ressources, both file descriptors
  */
 typedef struct ressources {
     int fd_socket_listen;  /**< File descriptor for the listening socket */
     int fd_socket_connected; /**< File descriptor for the connected socket */
 } ressources;
 
+/**
+ * @def maximal amount of requests on listening socket
+ */
 #define BACKLOG 5
+/**
+ * @def absolute path to the business logic
+ */
 #define LOGICS_PATH "/usr/local/bin/simple_message_server_logic"
+/**
+ * @def name of the business logic application called in this function
+ */
 #define LOGICS_NAME "simple_message_server_logic"
 
 static void errorMessage(char* userMessage, char* errorMessage, const char* progname);
@@ -74,7 +83,7 @@ int main(int argc, char* const* argv) {
 
     // Set socket options to reuse address
     int retval;
-    int optval;
+    int optval = 1;     // set reuse adress to 1;
     retval = setsockopt(serverRessources.fd_socket_listen, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
     if (retval == -1) {
         errorMessage("Reuse address failed", strerror(errno), progname);
@@ -158,7 +167,6 @@ int main(int argc, char* const* argv) {
             close(serverRessources.fd_socket_connected);
         }
     }
-
 }
 
 static void sigchild_handler(int s) {
@@ -166,10 +174,16 @@ static void sigchild_handler(int s) {
     // wait for terminating properly the child process
     while (waitpid(-1, NULL, WNOHANG) > 0);
     errno = save_errno;
-    fprintf(stdout, ": s%d", s);
+    fprintf(stdout, ": s %d", s);
 
 }
 
+/**
+ * @brief Parameter check for the Server function.
+ * @param argc int Number of incoming parameters
+ * @param argv char* Pointerarray containing all parametres
+ * @param port u_int16_t listening port of the server
+ */
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
     int opt;
     char* endpointer = NULL;
@@ -199,17 +213,29 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
 
 }
 
+/**
+ * @brief Print out an error message with the given error and terminate the program
+ * @param userMessage char* Message to the user
+ * @param errorMessage char* errormessage from the system -> equivalent to the set errno
+ * @param progname char* name of the programm argv[0]
+ */
 static void errorMessage(char* userMessage, char* errorMessage, const char* progname) {
     fprintf(stderr, "%s: %s %s\n", progname, userMessage, errorMessage);
     exit(EXIT_FAILURE);
 }
 
+/**
+ * @brief close all open ressources in on single point
+ * @param res ressources struct contsining all needed ressources
+ */
 static void closeRessources(ressources res) {
     if (res.fd_socket_connected != -1) {
-        (void) close(res.fd_socket_connected);
+        (void) close(res.fd_socket_connected);  // close connected socket
+        res.fd_socket_connected = -1;   // set to initialize value
     }
     if (res.fd_socket_listen != -1) {
-        (void) close(res.fd_socket_listen);
+        (void) close(res.fd_socket_listen); // close listen socket
+        res.fd_socket_listen = -1;      // set to initialize value
     }
 }
 
