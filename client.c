@@ -310,9 +310,10 @@ int main(int argc, const char* argv[]) {
         errorMessage("Could not read from serverIP: ", strerror(errno), ressources);
     }
     int binary_filelenght = extractIntfromString(htmlLenghtBuffer, MAXFILELENGTH);
-
-    fprintf(stdout, "html length buffer: %s, html parsed: %d\n", htmlLenghtBuffer, binary_filelenght);
-
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "html length buffer: %s, html parsed: %d\n", htmlLenghtBuffer, binary_filelenght);
+    }
     // extract the filename from the field
     extractFilename(filenameBuffer, &filename, ressources);
     if (ressources->verbose == 1) {
@@ -448,7 +449,7 @@ void writeToDisk(int length, ressourcesContainer* ressources) {
             writeBytes += actualWrite;
             if (ressources->verbose == 1) {
                 LINEOUTPUT;
-                fprintf(stdout, "Copied the rest to disk");
+                fprintf(stdout, "Copied the rest to disk: %d\n", actualWrite);
             }
             free(restOfFile);   // done with the rest
             restOfFile = NULL;
