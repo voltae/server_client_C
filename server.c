@@ -18,39 +18,50 @@
 /*@TODO Replace testing addresses with user defined from args
  * Ihr Client soll genauso wie die Musterimplementierung (simple_message_client(1))
  * sowohl mit IPV4 als auch mit IPV6 funktionieren. */
-#define RECEIVERBUFFER 100
 
-/*@TODO Replace testing addresses with user defined from args */
+/**
+ * @brief Struct holds all needed ressources
+ */
+typedef struct ressources {
+    int fd_socket_listen;  /**< File descriptor for the listening socket */
+    int fd_socket_connected; /**< File descriptor for the connected socket */
+} ressources;
 
-#define RECEIVERBUFFER 100
 #define BACKLOG 5
+#define LOGICS_PATH "/usr/local/bin/simple_message_server_logic"
+#define LOGICS_NAME "simple_message_server_logic"
 
 static void errorMessage(char* userMessage, char* errorMessage, const char* progname);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
+static void closeRessources(ressources res);
+
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port);
 
-//static void sigchild_handler(int s);
+static void sigchild_handler(int s);
+
 
 int main(int argc, char* const* argv) {
-    char buffer[RECEIVERBUFFER] = {"\0"};
-    char messageServer[] = "The Server is saying annoying things.";
+    // char buffer[RECEIVERBUFFER] = {"\0"};
+    // char messageServer[] = "The Server is saying annoying things.";
 
     // file descriptor socket server
+    ressources serverRessources;
+    serverRessources.fd_socket_listen = -1; // initialize the file descriptors
+    serverRessources.fd_socket_connected = -1;
 
-    int fd_socket_server, fd_socket_client;
     struct sockaddr_in server_add, client_add;  // Server Socket, Client Socket
     const char* progname = argv[0];
     struct sigaction signalact;
     uint16_t port = 0;                          // Initialize Port Variable for Parameter check
-    // char clientAdress[INET_ADDRSTRLEN];         // Server address for logging
 
     evaluateParameters(argc, argv, &port);
     // SOCKET()
-    fd_socket_server = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd_socket_server < 0) {
+    serverRessources.fd_socket_listen = socket(AF_INET, SOCK_STREAM, 0);
+    if (serverRessources.fd_socket_listen < 0) {
         errorMessage("Could not create a socket: ", strerror(errno), progname);
+        closeRessources(serverRessources);
     }
 
     // initialize struct with 0
@@ -61,14 +72,23 @@ int main(int argc, char* const* argv) {
    into binary data in network byte order.  */
     server_add.sin_addr.s_addr = htonl(INADDR_ANY);
 
+    // Set socket options to reuse address
+    int retval;
+    int optval;
+    retval = setsockopt(serverRessources.fd_socket_listen, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    if (retval == -1) {
+        errorMessage("Reuse address failed", strerror(errno), progname);
+        closeRessources(serverRessources);
+    }
+
     // BIND()
-    if (bind(fd_socket_server, (struct sockaddr*) &server_add, sizeof(server_add)) < 0) {
+    if (bind(serverRessources.fd_socket_listen, (struct sockaddr*) &server_add, sizeof(server_add)) < 0) {
         errorMessage("Could not bind to socket: ", strerror(errno), progname);
     }
     fprintf(stdout, "Server Socket:%d created.\n",
             ntohs(server_add.sin_port));
     // LISTEN()
-    if (listen(fd_socket_server, BACKLOG) < 0) {
+    if (listen(serverRessources.fd_socket_listen, BACKLOG) < 0) {
         errorMessage("Could not listen to socket: ", strerror(errno), progname);
     }
 
@@ -81,62 +101,64 @@ int main(int argc, char* const* argv) {
     sigemptyset(&signalact.sa_mask);
     signalact.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &signalact, NULL) == -1) {
-        close(fd_socket_server);
+        close(serverRessources.fd_socket_listen);
         errorMessage("Error in Child process", strerror(errno), progname);
     }
     // Endless loop, Server must be killed manually
     socklen_t len_client = sizeof(client_add);
-    int rec_size;   // bytes received from client
+    // int rec_size;   // bytes received from client
 
     //@TODO Server should act as spawning Server
     // Die Businesslogic des Servers brauchen Sie nicht zu implementieren.
     // - Verwenden Sie das fertige Executable simple_message_server_logic(1) im Sinne eines spawning servers.
     while (1) {
-        fd_socket_client = accept(fd_socket_server, (struct sockaddr*) &client_add, &len_client);
-        if (fd_socket_client < 0) {
+        serverRessources.fd_socket_connected = accept(serverRessources.fd_socket_listen, (struct sockaddr*) &client_add,
+                                                      &len_client);
+        if (serverRessources.fd_socket_connected < 0) {
             errorMessage("Could not accept socket: ", strerror(errno), progname);
         }
-        /*
-        fprintf(stdout, "Got connection from:%d\n",
+
+        fprintf(stdout, "Got connection from: %d\n",
                 ntohs(client_add.sin_addr.s_addr));
-        if (!fork()) {
+        int fork_return = fork();
+        if (fork_return == -1) {
             // child process routine
             // Close the listening socket
-            (void) close(fd_socket_server);
-            (void) close(fd_socket_client);
-
+            closeRessources(serverRessources);
+            errorMessage("fork failed!", strerror(errno), progname);
+        } else if (fork_return == 0) {
+            // Child process
             // Redirect the STDIN to the socket
-            if (fd_socket_client != STDIN_FILENO) {
-                int statusDupRead = dup2(fd_socket_client, STDIN_FILENO);
+            if (serverRessources.fd_socket_connected != STDIN_FILENO) {
+                int statusDupRead = dup2(serverRessources.fd_socket_connected, STDIN_FILENO);
                 if (statusDupRead == -1) {
-                    (void) close(fd_socket_client);
-                    (void) close(fd_socket_server);
-                    errorMessage("Could not redirect the socket", strerror(errno), progname);
+                    closeRessources(serverRessources);
+                    errorMessage("Could not redirect the read socket", strerror(errno), progname);
                 }
             }
-            // REdirect the STDOUT to the socket
-            if (fd_socket_client != STDOUT_FILENO) {
-                int statusDupWrite = dup2(fd_socket_client, STDOUT_FILENO);
+            // Redirect the STDOUT to the socket
+            if (serverRessources.fd_socket_connected != STDOUT_FILENO) {
+                int statusDupWrite = dup2(serverRessources.fd_socket_connected, STDOUT_FILENO);
                 if (statusDupWrite == -1) {
-                    (void) close(fd_socket_client);
-                    (void) close(fd_socket_server);
+                    closeRessources(serverRessources);
+                    errorMessage("Could not redirect the write socket", strerror(errno), progname);
                 }
             }
+
+            // close listen connection in the child process
+            close(serverRessources.fd_socket_listen);
+            serverRessources.fd_socket_listen = -1;
 
             // *** Do the exec here ***
-        }
-        */
-        rec_size = read(fd_socket_client, buffer, RECEIVERBUFFER);
-        if (rec_size < 0) {
-            errorMessage("Could not read from Client: ", strerror(errno), progname);
-        }
-        fprintf(stdout, "Client says: %s\n", buffer);
+            execl(LOGICS_PATH, LOGICS_NAME, NULL);
 
-        int success = write(fd_socket_client, messageServer, strlen(messageServer));
-        if (success == -1) {
-            errorMessage("Could not write to Client.", strerror(errno), progname);
+        } else {
+            // Parent Process
+            // Close the connected socket in the parent process
+            close(serverRessources.fd_socket_connected);
         }
     }
+
 }
 
 static void sigchild_handler(int s) {
@@ -144,6 +166,7 @@ static void sigchild_handler(int s) {
     // wait for terminating properly the child process
     while (waitpid(-1, NULL, WNOHANG) > 0);
     errno = save_errno;
+    fprintf(stdout, ": s%d", s);
 
 }
 
@@ -179,6 +202,15 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
 static void errorMessage(char* userMessage, char* errorMessage, const char* progname) {
     fprintf(stderr, "%s: %s %s\n", progname, userMessage, errorMessage);
     exit(EXIT_FAILURE);
+}
+
+static void closeRessources(ressources res) {
+    if (res.fd_socket_connected != -1) {
+        (void) close(res.fd_socket_connected);
+    }
+    if (res.fd_socket_listen != -1) {
+        (void) close(res.fd_socket_listen);
+    }
 }
 
 /**

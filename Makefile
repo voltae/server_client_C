@@ -35,13 +35,13 @@ LIBOBJECT=./libsimple_message_client_commandline_handling/simple_message_client_
 ##
 
 .PHONY: all
-all: client
+all: client server
 
-server: server.o
-	$(CC) $(CFLAGS) -oserver -L$(LDFLAGS)
+server: $@.o
+	$(CC) $(CFLAGS) -oserver
 
-client: client.o
-	$(CC) $(CFLAGS) client.c -oclient  $(LDFLAGS)
+client: $@.o
+	$(CC) $(CFLAGS) -oclient  $(LDFLAGS)
 
 
 .PHONY: clean
