@@ -47,7 +47,8 @@ static void usage(FILE* stream, const char* cmnd, int exitcode);
 
 static void closeRessources(ressources res);
 
-static void printAddress(struct sockaddr* sockaddr);
+static void printAddress(struct sockaddr_in sockaddr);
+
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port);
 
 static void sigchild_handler(int s);
@@ -102,7 +103,7 @@ int main(int argc, char* const* argv) {
     }
 
     fprintf(stdout, "Server listen on: ");
-    printAddress(&server_add);
+    printAddress(server_add);
     fprintf(stdout, "Server listening. Waiting ...\n");
 
     // add the child handler to the address struct
@@ -110,13 +111,13 @@ int main(int argc, char* const* argv) {
     sigemptyset(&signalact.sa_mask);
     signalact.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &signalact, NULL) == -1) {
-        close(serverRessources.fd_socket_listen);
-        errorMessage("Error in Child process", strerror(errno), progname);
+        closeRessources(serverRessources);
+        errorMessage("Error in Child signal process", strerror(errno), progname);
     }
     // Endless loop, Server must be killed manually
     socklen_t len_client = sizeof(client_add);
 
-    // start the spawing
+    // start the spawning server routine, main loop
     while (1) {
         serverRessources.fd_socket_connected = accept(serverRessources.fd_socket_listen, (struct sockaddr*) &client_add,
                                                       &len_client);
@@ -125,17 +126,23 @@ int main(int argc, char* const* argv) {
         }
 
         fprintf(stdout, "Got connection from: ");
-        printAddress(&client_add);
+        printAddress(client_add);
 
+        // Forking a new process
         int fork_return = fork();
+        // ------ ERROR CASE --------
         if (fork_return == -1) {
             // child process routine
             // Close the listening socket
             closeRessources(serverRessources);
             errorMessage("fork failed!", strerror(errno), progname);
-        } else if (fork_return == 0) {
+        }
+            // ------- CHILD PART --------
+        else if (fork_return == 0) {
             // Child process
             // Redirect the STDIN to the socket
+            fprintf(stderr, "Child process, forking done\n");   // prints must be done to stderr,
+
             if (serverRessources.fd_socket_connected != STDIN_FILENO) {
                 int statusDupRead = dup2(serverRessources.fd_socket_connected, STDIN_FILENO);
                 if (statusDupRead == -1) {
@@ -143,6 +150,8 @@ int main(int argc, char* const* argv) {
                     errorMessage("Could not redirect the read socket", strerror(errno), progname);
                 }
             }
+            fprintf(stderr, "Child process, Read socket duplicated to stdin\n");
+
             // Redirect the STDOUT to the socket
             if (serverRessources.fd_socket_connected != STDOUT_FILENO) {
                 int statusDupWrite = dup2(serverRessources.fd_socket_connected, STDOUT_FILENO);
@@ -151,20 +160,27 @@ int main(int argc, char* const* argv) {
                     errorMessage("Could not redirect the write socket", strerror(errno), progname);
                 }
             }
+            fprintf(stderr, "Child process, Write socket duplicated to stdout\n");
 
             // close listen connection in the child process
             close(serverRessources.fd_socket_listen);
             serverRessources.fd_socket_listen = -1;
 
             // *** Do the exec here ***
+            fprintf(stderr, "Child process, executing business logic\n");
+
             execl(LOGICS_PATH, LOGICS_NAME, NULL);
 
-        } else {
+        }
+            // ------- PARENT PROCESS --------
+        else {
             // Parent Process
             // Close the connected socket in the parent process
+            fprintf(stdout, "Parent process, close the connected socket\n");
             close(serverRessources.fd_socket_connected);
         }
     }
+    return 0;
 }
 
 static void sigchild_handler(int s) {
@@ -173,7 +189,6 @@ static void sigchild_handler(int s) {
     while (waitpid(-1, NULL, WNOHANG) > 0);
     errno = save_errno;
     fprintf(stdout, ": s %d", s);
-
 }
 
 /**
@@ -187,7 +202,7 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
     char* endpointer = NULL;
     int tempPort = 0;
     /* check the parameters from command line */
-    // check if any parametersa given
+    // check if any parameter are given
     if (argc < 2) {
         usage(stderr, argv[0], 1);
     }
@@ -257,17 +272,11 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
  * @brief print the socket address and port to stdout
  * @param sockaddr sockaddr_in: given socket addres
  */
-static void printAddress(struct sockaddr* sockaddr) {
+static void printAddress(struct sockaddr_in sockaddr) {
     char address_ip4[INET_ADDRSTRLEN];
-    char address_ip6[INET6_ADDRSTRLEN];
-    switch (sockaddr->sa_family) {
-        case AF_INET:
-            inet_ntop(AF_INET, &(((struct sockaddr_in*) sockaddr)->sin_addr), address_ip4, INET_ADDRSTRLEN);
-            fprintf(stdout, "%s:%d\n", address_ip4, ntohs(((struct sockaddr_in*) sockaddr)->sin_port));
-        case AF_INET6:
-            inet_ntop(AF_INET6, &(((struct sockaddr_in6*) sockaddr)->sin6_addr), address_ip6, INET6_ADDRSTRLEN);
-            fprintf(stdout, "%s:%d\n", address_ip6, ntohs(((struct sockaddr_in6*) sockaddr)->sin6_port));
-    }
+    inet_ntop(AF_INET, &sockaddr.sin_addr, address_ip4, INET_ADDRSTRLEN);
+    fprintf(stdout, "%s:%d\n", address_ip4, ntohs(sockaddr.sin_port));
+
 }
 
 /* usage: simple_message_server option
