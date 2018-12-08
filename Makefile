@@ -23,6 +23,7 @@ CFLAGS = -Wall -Werror -Wextra -Wstrict-prototypes -pedantic -fno-common -O3 -g 
 LDFLAGS = -lsimple_message_client_commandline_handling -lm
 LIBOBJECT=./libsimple_message_client_commandline_handling/simple_message_client_commandline_handling.o
 
+
 ##
 ## ------------------------------------------------------------- variables --
 ##
@@ -38,10 +39,18 @@ LIBOBJECT=./libsimple_message_client_commandline_handling/simple_message_client_
 all: client server
 
 server: $@.o
-	$(CC) $(CFLAGS) -oserver
+	$(CC) $(CFLAGS) $@.o -oserver
 
 client: $@.o
-	$(CC) $(CFLAGS) -oclient  $(LDFLAGS)
+	$(CC) $(CFLAGS) $@.o -oclient  $(LDFLAGS)
+
+debug_server: server.o
+	$(CC) $(CFLAGS) -oserver
+	gdb -batch -x ./server --args server -p7329 &
+
+debug_client: client.o
+	$(CC) $(CFLAGS) -g -oserver
+	gdb -batch -x ./server --args client -p7329 -u'ic17b096' -m'test' -i'localhost'
 
 
 .PHONY: clean
