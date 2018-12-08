@@ -508,6 +508,7 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
 }
 
 static int extractIntfromString(char* buffer, int len) {
+    errno = 0;
     char tempBuffer[len];
     int resultLen = 0, result;
     for (int i = 0; i < len; i++) {
@@ -516,6 +517,9 @@ static int extractIntfromString(char* buffer, int len) {
     }
     // @TODO: return -1 when eror and handle it in caller function------------------------------------------------------------------------------------------------------
     result = (int) strtol(tempBuffer, NULL, 10);
+    if (errno == EINVAL) {
+        fprintf(stderr, "Illegal digit");
+    }
 
     return result;
 }
