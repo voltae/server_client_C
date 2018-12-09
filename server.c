@@ -23,9 +23,10 @@
 /**
  * @brief Struct holds all needed ressources, both file descriptors
  */
-typedef struct ressources {
-    int fd_socket_listen;  /**< File descriptor for the listening socket */
-    int fd_socket_connected; /**< File descriptor for the connected socket */
+typedef struct ressourcesContainer {
+    int fd_socket_listen;        /**< File descriptor for the listening socket */
+    int fd_socket_connected;     /**< File descriptor for the connected socket */
+    const char* progname;        /**< Progamm name argv[0] */
 } ressources;
 
 /**
@@ -41,7 +42,7 @@ typedef struct ressources {
  */
 #define LOGICS_NAME "simple_message_server_logic"
 
-static void errorMessage(char* userMessage, char* errorMessage, const char* progname);
+static void errorMessage(char* userMessage, char* errorMessage, ressources serverRessources);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
@@ -60,9 +61,9 @@ int main(int argc, char* const* argv) {
     ressources serverRessources;
     serverRessources.fd_socket_listen = -1; // initialize the file descriptors
     serverRessources.fd_socket_connected = -1;
+    serverRessources.progname = argv[0];
 
     struct sockaddr_in server_add, client_add;  // Server Socket, Client Socket
-    const char* progname = argv[0];
     struct sigaction signalact;
     uint16_t port = 0;                          // Initialize Port Variable for Parameter check
 
@@ -70,8 +71,7 @@ int main(int argc, char* const* argv) {
     // SOCKET()
     serverRessources.fd_socket_listen = socket(AF_INET, SOCK_STREAM, 0);
     if (serverRessources.fd_socket_listen < 0) {
-        errorMessage("Could not create a socket: ", strerror(errno), progname);
-        closeRessources(serverRessources);
+        errorMessage("Could not create a socket: ", strerror(errno), serverRessources);
     }
 
     // initialize struct with 0
@@ -87,19 +87,18 @@ int main(int argc, char* const* argv) {
     int optval = 1;     // set reuse adress to 1;
     retval = setsockopt(serverRessources.fd_socket_listen, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
     if (retval == -1) {
-        errorMessage("Reuse address failed", strerror(errno), progname);
-        closeRessources(serverRessources);
+        errorMessage("Reuse address failed", strerror(errno), serverRessources);
     }
 
     // BIND()
     if (bind(serverRessources.fd_socket_listen, (struct sockaddr*) &server_add, sizeof(server_add)) < 0) {
-        errorMessage("Could not bind to socket: ", strerror(errno), progname);
+        errorMessage("Could not bind to socket: ", strerror(errno), serverRessources);
     }
     fprintf(stdout, "Server Socket:%d created.\n",
             ntohs(server_add.sin_port));
     // LISTEN()
     if (listen(serverRessources.fd_socket_listen, BACKLOG) < 0) {
-        errorMessage("Could not listen to socket: ", strerror(errno), progname);
+        errorMessage("Could not listen to socket: ", strerror(errno), serverRessources);
     }
 
     fprintf(stdout, "Server listen on: ");
@@ -111,8 +110,7 @@ int main(int argc, char* const* argv) {
     sigemptyset(&signalact.sa_mask);
     signalact.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &signalact, NULL) == -1) {
-        closeRessources(serverRessources);
-        errorMessage("Error in Child signal process", strerror(errno), progname);
+        errorMessage("Error in Child signal process", strerror(errno), serverRessources);
     }
     // Endless loop, Server must be killed manually
     socklen_t len_client = sizeof(client_add);
@@ -122,7 +120,7 @@ int main(int argc, char* const* argv) {
         serverRessources.fd_socket_connected = accept(serverRessources.fd_socket_listen, (struct sockaddr*) &client_add,
                                                       &len_client);
         if (serverRessources.fd_socket_connected < 0) {
-            errorMessage("Could not accept socket: ", strerror(errno), progname);
+            errorMessage("Could not accept socket: ", strerror(errno), serverRessources);
         }
 
         fprintf(stdout, "Got connection from: ");
@@ -134,8 +132,7 @@ int main(int argc, char* const* argv) {
         if (fork_return == -1) {
             // child process routine
             // Close the listening socket
-            closeRessources(serverRessources);
-            errorMessage("fork failed!", strerror(errno), progname);
+            errorMessage("fork failed!", strerror(errno), serverRessources);
         }
             // ------- CHILD PART --------
         else if (fork_return == 0) {
@@ -146,8 +143,7 @@ int main(int argc, char* const* argv) {
             if (serverRessources.fd_socket_connected != STDIN_FILENO) {
                 int statusDupRead = dup2(serverRessources.fd_socket_connected, STDIN_FILENO);
                 if (statusDupRead == -1) {
-                    closeRessources(serverRessources);
-                    errorMessage("Could not redirect the read socket", strerror(errno), progname);
+                    errorMessage("Could not redirect the read socket", strerror(errno), serverRessources);
                 }
             }
             fprintf(stderr, "Child process, Read socket duplicated to stdin\n");
@@ -156,20 +152,25 @@ int main(int argc, char* const* argv) {
             if (serverRessources.fd_socket_connected != STDOUT_FILENO) {
                 int statusDupWrite = dup2(serverRessources.fd_socket_connected, STDOUT_FILENO);
                 if (statusDupWrite == -1) {
-                    closeRessources(serverRessources);
-                    errorMessage("Could not redirect the write socket", strerror(errno), progname);
+                    errorMessage("Could not redirect the write socket", strerror(errno), serverRessources);
                 }
             }
             fprintf(stderr, "Child process, Write socket duplicated to stdout\n");
 
             // close listen connection in the child process
-            close(serverRessources.fd_socket_listen);
+            if (close(serverRessources.fd_socket_listen) != 0) {
+                errorMessage("Cloud not close the listen socket in child process", strerror(errno), serverRessources);
+            }
             serverRessources.fd_socket_listen = -1;
 
             // *** Do the exec here ***
+            fprintf(stderr, "Closed connected socket.\n");
             fprintf(stderr, "Child process, executing business logic\n");
-
+            close(serverRessources.fd_socket_connected);
             execl(LOGICS_PATH, LOGICS_NAME, NULL);
+
+
+            exit(0);
 
         }
             // ------- PARENT PROCESS --------
@@ -178,6 +179,7 @@ int main(int argc, char* const* argv) {
             // Close the connected socket in the parent process
             fprintf(stdout, "Parent process, close the connected socket\n");
             close(serverRessources.fd_socket_connected);
+            continue;   // next iteration
         }
     }
     return 0;
@@ -232,8 +234,9 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
  * @param errorMessage char* errormessage from the system -> equivalent to the set errno
  * @param progname char* name of the programm argv[0]
  */
-static void errorMessage(char* userMessage, char* errorMessage, const char* progname) {
-    fprintf(stderr, "%s: %s %s\n", progname, userMessage, errorMessage);
+static void errorMessage(char* userMessage, char* errorMessage, ressources serverRessources) {
+    fprintf(stderr, "%s: %s %s\n", serverRessources.progname, userMessage, errorMessage);
+    closeRessources(serverRessources);
     exit(EXIT_FAILURE);
 }
 
