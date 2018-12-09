@@ -31,6 +31,7 @@
 #define CHUNK 256
 
 #define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
+
 /**
  * @brief ressourcesContainer stores all needed ressources in one single place
  */
@@ -44,6 +45,8 @@ typedef struct ressourcesContainer {
     int verbose;                             /**< Output in verbose mode 0 off, 1 on */
 } ressourcesContainer;
 
+const char* filename = "file=\0";
+const char* length = "len=\0";
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
@@ -281,7 +284,6 @@ int main(int argc, const char* argv[]) {
                 }
                 break;
             } else if (ferror(ressources->filepointerClientRead)) {
-                closeAllRessources(ressources);
                 errorMessage("Could not read from server: ", strerror(errno), ressources);
             }
         }
@@ -295,9 +297,11 @@ int main(int argc, const char* argv[]) {
                 }
                 break;
             } else if (ferror(ressources->filepointerClientRead)) {
-                closeAllRessources(ressources);
                 errorMessage("Could not read from server: ", strerror(errno), ressources);
             }
+        }
+        if (strncmp(filenameBuffer, filename, strlen(filename)) != 0) {
+            errorMessage("No filename given.", strerror(errno), ressources);
         }
         extractedHtmlFileLength = extractIntfromString(htmlLenghtBuffer, MAXFILELENGTH);
 
@@ -308,6 +312,10 @@ int main(int argc, const char* argv[]) {
         }
         // extract the filename from the field
         char* filename = NULL;
+
+        if (strncmp(htmlLenghtBuffer, length, strlen(length)) != 0) {
+            errorMessage("No file length given.", strerror(errno), ressources);
+        }
         extractFilename(filenameBuffer, &filename, ressources);
         if (ressources->verbose == 1) {
             LINEOUTPUT;
