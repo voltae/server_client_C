@@ -519,7 +519,7 @@ static int extractIntfromString(char* buffer, int len) {
     if (errno == EINVAL) {
         fprintf(stderr, "Illegal digit");
     }
-
+	//TODO: irregulärer filename
     return result;
 }
 
