@@ -137,6 +137,7 @@ int main(int argc, const char* argv[]) {
         if (ressources->socketDescriptorWrite < 0) {
             //nicht �ber errorMessage?----------------------------------------------------------------------------------------------------------------------------------
             fprintf(stderr, "Could not create a socket:\n");
+            close(ressources->socketDescriptorWrite);
             continue; // try next pointer
         }
         if (ressources->verbose == 1) {
@@ -159,7 +160,6 @@ int main(int argc, const char* argv[]) {
     // if the currentPointer is Null at this point, something was going wrong
     if (currentServerAddr == NULL) {
         freeaddrinfo(serveraddr);   // Free the allocated pointer before quitting
-        closeAllRessources(ressources);
         errorMessage("Connection failed.", strerror(errno), ressources);
     }
     freeaddrinfo(serveraddr);   // free the allocated pointer
@@ -183,7 +183,6 @@ int main(int argc, const char* argv[]) {
     //dup returns -1 if failed, descriptor if succeeded
     ressources->socketDescriptorRead = dup(ressources->socketDescriptorWrite);
     if (ressources->socketDescriptorRead == -1) {
-        closeAllRessources(ressources);
         errorMessage("Error in duplicating file descriptor", strerror(errno), ressources);
     }
     if (ressources->verbose == 1) {
@@ -199,13 +198,12 @@ int main(int argc, const char* argv[]) {
     //----------open Filepointer to write/read (filepointerClientRead & filepointerClientWrite)----------
     //---------------------------------------------------------------------------------------------------
     //fdopen returns NULL if failed
-    ressources->filepointerClientRead = fdopen(ressources->socketDescriptorRead,
-                                               "r");      // use the copy of the duplicated field descriptor for both file Pointer
+    // use the copy of the duplicated field descriptor for both file pointer
+    ressources->filepointerClientRead = fdopen(ressources->socketDescriptorRead, "r");
     ressources->filepointerClientWrite = fdopen(ressources->socketDescriptorWrite, "w");
 
     if (ressources->filepointerClientRead == NULL || ressources->filepointerClientWrite == NULL) {
         // an error occured during cerate Filepointer, close the file descriptor
-        closeAllRessources(ressources);
         errorMessage("Could not create a File Pointer", strerror(errno), ressources);
     }
     if (ressources->verbose == 1) {
@@ -230,38 +228,35 @@ int main(int argc, const char* argv[]) {
     }
     if (sentBytes == -1) {
         // an error occured during write, close the file descriptor
-        closeAllRessources(ressources);
         errorMessage("Could not write to the File Pointer", strerror(errno), ressources);
     } else if (sentBytes == 0) {
-        closeAllRessources(ressources);
         errorMessage("Nothing sent.", strerror(errno), ressources);
     }
+    //---------------------------------------------------------------------------------------------------
+    //------------------ close Filepointer to write (filepointerClientWrite) ----------------------------
+    //---------------------------------------------------------------------------------------------------
+    // flush the buffer to socket
     if (fflush(ressources->filepointerClientWrite) != 0) {
-        closeAllRessources(ressources);
-        errorMessage("Could not flush to disk", strerror(errno), ressources);
-    }
-    // Close the write connection from the client, nothing to say ...
-    if ((shutdown(fileno(ressources->filepointerClientWrite), SHUT_WR)) < 0) {
-        closeAllRessources(ressources);
-        errorMessage("Could not close the WR socket: ", strerror(errno), ressources);
-    }
-    ressources->socketDescriptorWrite = -1;
-    if (ressources->verbose == 1) {
-        LINEOUTPUT;
-        fprintf(stdout, "Shutdown Write Socket\n");
+        errorMessage("Could not flush to socket", strerror(errno), ressources);
     }
 
-    fclose(ressources->filepointerClientWrite);
+    // Close the write connection from the client, nothing to say ...
+    if ((shutdown(fileno(ressources->filepointerClientRead), SHUT_WR) < 0)) {
+        errorMessage("Could not shutdown the WR socket of the reading socket: ", strerror(errno), ressources);
+    }
+    // Close the filepointer closes the underlying socket (socketDescriptorWrite)
+    if (fclose(ressources->filepointerClientWrite) != 0) {
+        errorMessage("Could not close the write filestream to socket", strerror(errno), ressources);
+    }
     ressources->filepointerClientWrite = NULL;
+    ressources->socketDescriptorWrite = -1;
     if (ressources->verbose == 1) {
         LINEOUTPUT;
         fprintf(stdout, "Close Write Filepointer\n");
     }
-
     // Get status
     if (fgets(statusBuffer, STATUSLENGTH, ressources->filepointerClientRead) ==
         NULL) {     // fgets uses read descriptor
-        closeAllRessources(ressources);
         errorMessage("Could not read from server: ", strerror(errno), ressources);
     }
     // try to find status, the beginning of the protocol
@@ -329,29 +324,24 @@ int main(int argc, const char* argv[]) {
         isEOF = writeToDisk(extractedHtmlFileLength, ressources);
     } while (!isEOF);
 
-    /* Close the read connection from the client, over and out ... */
-    int lastshutdown = 0;
-    if (ressources->verbose == 1) {
-        LINEOUTPUT;
-        fprintf(stdout, "socketDescriptorRead: %d\n", ressources->socketDescriptorRead);
+    //---------------------------------------------------------------------------------------------------
+    //------------------ close Filepointer to read (filepointerClientRead) ------------------------------
+    //---------------------------------------------------------------------------------------------------
+
+    // close the read filestream and the underlying socket
+    if (fclose(ressources->filepointerClientRead) != 0) {
+        errorMessage("Could not close the read filestream to socket", strerror(errno), ressources);
     }
-    if ((lastshutdown = close(ressources->socketDescriptorRead)) < 0) {
-        fprintf(stdout, "last shoutdown error code: %d\n", lastshutdown);
-        closeAllRessources(ressources);
-        errorMessage("Could not close the RD socket: ", strerror(errno), ressources);
-    }
+    ressources->filepointerClientRead = NULL;
     ressources->socketDescriptorRead = -1;
     if (ressources->verbose == 1) {
         LINEOUTPUT;
-        fprintf(stdout, "Shutdown Read Socket\n");
+        fprintf(stdout, "Closing Filestream Client Read \n");
     }
-
-    // close the filestream
-    fclose(ressources->filepointerClientRead);
-    ressources->filepointerClientRead = NULL;
+    /* Close the read connection from the client, over and out ... */
     if (ressources->verbose == 1) {
         LINEOUTPUT;
-        fprintf(stdout, "Closing Filestream Client Read \n");
+        fprintf(stdout, "socketDescriptorRead: %d\n", ressources->socketDescriptorRead);
     }
     // Everything went well, deallocate the ressources struct
     free(ressources);
@@ -477,6 +467,7 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
 
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources) {
     fprintf(stderr, "%s: %s %s\n", ressources->progname, userMessage, errorMessage);
+    closeAllRessources(ressources); // close all open ressources before leaving
     if (ressources != NULL) {
         free(ressources);       // deallocate the ressources before leaving program
         ressources = NULL;
@@ -559,23 +550,33 @@ static void extractFilename(char* filenameBuffer, char** filename, ressourcesCon
 
 static void closeAllRessources(ressourcesContainer* ressources) {
     if (ressources->socketDescriptorRead != -1) {
-        close(ressources->socketDescriptorRead);
+        if (close(ressources->socketDescriptorRead) != 0) {
+            fprintf(stderr, "Could not close socketDescriptorRead");
+        }
         ressources->socketDescriptorRead = -1;
     }
     if (ressources->socketDescriptorWrite != -1) {
-        close(ressources->socketDescriptorWrite);
+        if (close(ressources->socketDescriptorWrite) != 0) {
+            fprintf(stderr, "Could not close socketDescriptorWrite");
+        }
         ressources->socketDescriptorWrite = -1;
     }
     if (ressources->filepointerClientRead != NULL) {
-        fclose(ressources->filepointerClientRead);
+        if (fclose(ressources->filepointerClientRead) != 0) {
+            fprintf(stderr, "Could not close filepointerClientRead");
+        }
         ressources->filepointerClientRead = NULL;
     }
     if (ressources->filepointerClientWrite != NULL) {
-        fclose(ressources->filepointerClientWrite);
+        if (fclose(ressources->filepointerClientWrite) != 0) {
+            fprintf(stderr, "Could not close filepointerClientWrite");
+        }
         ressources->filepointerClientWrite = NULL;
     }
     if (ressources->clientWriteDiskFp != NULL) {
-        fclose(ressources->clientWriteDiskFp);
+        if (fclose(ressources->clientWriteDiskFp) != 0) {
+            fprintf(stderr, "Could not close clientWriteDiskFp");
+        }
         ressources->clientWriteDiskFp = NULL;
     }
 }
