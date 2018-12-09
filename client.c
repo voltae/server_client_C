@@ -38,7 +38,7 @@
 typedef struct ressourcesContainer {
     FILE* filepointerClientRead;             /**< File Pointer for Read operation */
     FILE* filepointerClientWrite;            /**< File Pointer for Write operation */
-    FILE* clientWriteDiskFp;                 /**< File Pointer for Hard Disk operation */
+    FILE* filepointerClientWriteDisk;        /**< File Pointer for Hard Disk operation */
     int socketDescriptorRead;                /**< Socket for Read operation */
     int socketDescriptorWrite;               /**< Socket for Write operation */
     const char* progname;                    /**< Program Name argv[0] */
@@ -63,11 +63,11 @@ static void closeAllRessources(ressourcesContainer* ressources);
 
 int main(int argc, const char* argv[]) {
     struct addrinfo* serveraddr, * currentServerAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
-    struct addrinfo hints;                      // Hints struct for the addr info function
-    char statusBuffer[STATUSLENGTH];                  // Buffer for the Status
+    struct addrinfo hints;								 // Hints struct for the addr info function
+    char statusBuffer[STATUSLENGTH];					 // Buffer for the Status
     int extractedStatus;                                 // integer holds status
-    char filenameBuffer[MAXFILENAMELENGTH]; // Buffer for File name max 255 Chars
-    char htmlLenghtBuffer[MAXFILELENGTH];                  // Max size of length
+    char filenameBuffer[MAXFILENAMELENGTH];				 // Buffer for File name max 255 Chars
+    char htmlLenghtBuffer[MAXFILELENGTH];                // Max size of length
     int extractedHtmlFileLength;
 
     //--------------------------------------------------
@@ -86,7 +86,7 @@ int main(int argc, const char* argv[]) {
     //--------------------------------------------
     ressources->filepointerClientRead = NULL;
     ressources->filepointerClientWrite = NULL;
-    ressources->clientWriteDiskFp = NULL;
+    ressources->filepointerClientWriteDisk = NULL;
     ressources->socketDescriptorRead = -1;
     ressources->socketDescriptorWrite = -1;
     ressources->progname = argv[0];
@@ -322,7 +322,7 @@ int main(int argc, const char* argv[]) {
             fprintf(stdout, "Filename: %s\n", filename);
         }
         // open filepointer for disk
-        ressources->clientWriteDiskFp = fopen(filename, "w");
+        ressources->filepointerClientWriteDisk = fopen(filename, "w");
 
         // we don't need the pointer anymore free it.
         free(filename);
@@ -356,6 +356,12 @@ int main(int argc, const char* argv[]) {
     return extractedStatus;
 }
 
+/**
+* @brief writeToDisk writes received message (information) into known location on disk indicated through filepointerClientWriteDisk
+* @param length is the length of the received file which is wanted to be written onto the disk
+* @param ressources is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
+* @return 0 if failed, 1 if succeeded
+*/
 bool writeToDisk(int length, ressourcesContainer* ressources) {
     static int loops;
     // create partioned textbuffer for continuous reading
@@ -386,8 +392,8 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
             closeAllRessources(ressources);
             errorMessage("Error in reading from socket", strerror(errno), ressources);
         }
-        writeBytes += fwrite(partioned_read_array, 1, CHUNK, ressources->clientWriteDiskFp);
-        if (ferror(ressources->clientWriteDiskFp) != 0) {
+        writeBytes += fwrite(partioned_read_array, 1, CHUNK, ressources->filepointerClientWriteDisk);
+        if (ferror(ressources->filepointerClientWriteDisk) != 0) {
             closeAllRessources(ressources);
             errorMessage("Error in writing to disk", strerror(errno), ressources);
         }
@@ -432,9 +438,9 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
                 errorMessage("Error in reading from socket", strerror(errno), ressources);
             }
 
-            actualWrite = fwrite(contentRestOfFile, 1, lengthRest, ressources->clientWriteDiskFp);
+            actualWrite = fwrite(contentRestOfFile, 1, lengthRest, ressources->filepointerClientWriteDisk);
             writeBytes += actualWrite;
-            if (ferror(ressources->clientWriteDiskFp) != 0) {
+            if (ferror(ressources->filepointerClientWriteDisk) != 0) {
                 closeAllRessources(ressources);
                 errorMessage("Error in writing to disk", strerror(errno), ressources);
             }
@@ -451,9 +457,9 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
         }
     }
 
-    fflush(ressources->clientWriteDiskFp);
-    fclose(ressources->clientWriteDiskFp);  // close the file
-    ressources->clientWriteDiskFp = NULL;
+    fflush(ressources->filepointerClientWriteDisk);
+    fclose(ressources->filepointerClientWriteDisk);  // close the file
+    ressources->filepointerClientWriteDisk = NULL;
 
     free(partioned_read_array);
     if (ressources->verbose == 1) {
@@ -473,6 +479,13 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
     return isEOF;
 }
 
+/**
+* @brief errorMessage prints an error message to the standarderror, then closes all ressources (and frees every pointer) and finally exits the program with an EXIT_FAILURE
+* @param userMessage contains the message telling which error has occured
+* @param errorMessage contains the errormessage from errno
+* @param ressources is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
+*/
+//no return needed because if function is called, program will be exited in end of the function - return never used
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources) {
     fprintf(stderr, "%s: %s %s\n", ressources->progname, userMessage, errorMessage);
     closeAllRessources(ressources); // close all open ressources before leaving
@@ -484,13 +497,10 @@ static void errorMessage(const char* userMessage, const char* errorMessage, ress
 }
 
 /**
- * @brief is called upon failure and displays a userinform to stderr and terminates afterwards.
- * @param stream the  stream to write the usage information to (e.g., stdout
-                   or stderr).
- * @param cmnd a string containing the name of the executable  (i.e.,  the
-                   contents of argv[0]).
- * @param exitcode the  exit code to be used in the call to exit(3) for termi-
-                   nating the program.
+ * @brief usage is called upon failure and displays a userinform to stderr and terminates afterwards.
+ * @param stream the  stream to write the usage information to (e.g., stdout or stderr).
+ * @param cmnd a string containing the name of the executable  (i.e., the contents of argv[0]).
+ * @param exitcode the  exit code to be used in the call to exit(3) for terminating the program.
  */
 static void usage(FILE* stream, const char* cmnd, int exitcode) {
     fprintf(stream, "usage: %s options\n", cmnd);
@@ -506,6 +516,12 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
     exit(exitcode);
 }
 
+/**
+* @brief extractIntfromString extracts an integer from the given string
+* @param buffer contains given string
+* @param len contains length of the given string
+* @return integer extracted from the given string (buffer)-----------------------------------------------------------------------------------------------------------
+*/
 static int extractIntfromString(char* buffer, int len) {
     errno = 0;
     char tempBuffer[len];
@@ -514,7 +530,7 @@ static int extractIntfromString(char* buffer, int len) {
         if (buffer[i] >= '0' && buffer[i] <= '9')
             tempBuffer[resultLen++] = buffer[i];
     }
-    // @TODO: return -1 when eror and handle it in caller function------------------------------------------------------------------------------------------------------
+    // @TODO: return -1 when error and handle it in caller function------------------------------------------------------------------------------------------------------
     result = (int) strtol(tempBuffer, NULL, 10);
     if (errno == EINVAL) {
         fprintf(stderr, "Illegal digit");
@@ -523,7 +539,13 @@ static int extractIntfromString(char* buffer, int len) {
     return result;
 }
 
-//
+/**
+* @brief extractFilename extracts the filename from the ???????????????????????????????????????????????????????????????????????----------------------------------------
+* @param buffer contains given string
+* @param len contains length of the given string
+* @return integer extracted from the given string (buffer)-----------------------------------------------------------------------------------------------------------
+*/
+//TODO LARA: was tut die fkt? was kann filenameBuffer, filenameTemp, filename? kann man was streichen?------------------------------------------------------------------
 static void extractFilename(char* filenameBuffer, char** filename, ressourcesContainer* ressources) {
     int a = 0, b = 0, c = 0;
     // find the '=' sign
@@ -556,6 +578,11 @@ static void extractFilename(char* filenameBuffer, char** filename, ressourcesCon
 
 }
 
+/**
+* @brief closeAllRessources closes all ressources and prints errormessage if an error occurs
+* @param ressources is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
+*/
+//return not used because?????????????------------------------------------------------------------------------------------------------------------------
 static void closeAllRessources(ressourcesContainer* ressources) {
     if (ressources->socketDescriptorRead != -1) {
         if (close(ressources->socketDescriptorRead) != 0) {
@@ -581,18 +608,19 @@ static void closeAllRessources(ressourcesContainer* ressources) {
         }
         ressources->filepointerClientWrite = NULL;
     }
-    if (ressources->clientWriteDiskFp != NULL) {
-        if (fclose(ressources->clientWriteDiskFp) != 0) {
+    if (ressources->filepointerClientWriteDisk != NULL) {
+        if (fclose(ressources->filepointerClientWriteDisk) != 0) {
             fprintf(stderr, "Could not close clientWriteDiskFp");
         }
-        ressources->clientWriteDiskFp = NULL;
+        ressources->filepointerClientWriteDisk = NULL;
     }
 }
 
 /**
- * @brief print the socket address and port to stdout
- * @param sockaddr sockaddr_in: given socket addres
+ * @brief printAdress prints the socket address and port to stdout
+ * @param sockaddr contains the given socket address
  */
+ //return not used because?????????????------------------------------------------------------------------------------------------------------------------
 static void printAddress(struct sockaddr* sockaddr) {
     char address_ip4[INET_ADDRSTRLEN];
     char address_ip6[INET6_ADDRSTRLEN];
