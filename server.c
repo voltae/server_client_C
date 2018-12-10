@@ -5,6 +5,8 @@
  * @brief Implementation of a simple server Application to work with a client
  * TCP/IP Lecture Distributed Systems
  */
+
+// -------------------------------------------------------------- includes --
 #include <stdlib.h>         // provides exit(), EXIT_FAILURE
 #include <stdio.h>          // provides the printf()
 #include <string.h>         // provide strerror(), strlen()
@@ -16,18 +18,7 @@
 #include <wait.h>           // provides waitpid()
 #include <netdb.h>
 
-/*@TODO Replace testing addresses with user defined from args
- * Ihr Client soll genauso wie die Musterimplementierung (simple_message_client(1))
- * sowohl mit IPV4 als auch mit IPV6 funktionieren. */
-
-/**
- * @brief Struct holds all needed ressources, both file descriptors
- */
-typedef struct ressourcesContainer {
-    int fd_socket_listen;        /**< File descriptor for the listening socket */
-    int fd_socket_connected;     /**< File descriptor for the connected socket */
-    const char* progname;        /**< Progamm name argv[0] */
-} ressources;
+// --------------------------------------------------------------- defines --
 /**
  * @def Line output. note all log notes must be on stderr, because stdout
  * redirected to the socket
@@ -47,6 +38,19 @@ typedef struct ressourcesContainer {
  */
 #define LOGICS_NAME "simple_message_server_logic"
 
+
+// -------------------------------------------------------------- typedefs --
+/**
+ * @brief Struct holds all needed ressources, both file descriptors
+ */
+typedef struct ressourcesContainer {
+    int fd_socket_listen;        /**< File descriptor for the listening socket */
+    int fd_socket_connected;     /**< File descriptor for the connected socket */
+    const char* progname;        /**< Progamm name argv[0] */
+} ressources;
+
+
+// ------------------------------------------------------------- functions --
 static void errorMessage(char* userMessage, char* errorMessage, ressources serverRessources);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
@@ -60,6 +64,13 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port, int
 static void sigchild_handler(int s);
 
 
+/**
+ * @brief main function of the server implementation. Server works as a spawning server. Every connenction is handled
+ * by a child process
+ * @param argc int: number of incoming paramters
+ * @param argv char**: pointerarray with all incoming paramters
+ * @return nothing, does not stop
+ */
 int main(int argc, char* const* argv) {
 
     // file descriptor socket server
@@ -196,12 +207,16 @@ int main(int argc, char* const* argv) {
     return 0;
 }
 
+/**
+ * @brief signal handler of the forked childs, parent has th wait for the termination and receive the exit code.
+ * @param s int: signal
+ */
 static void sigchild_handler(int s) {
     int save_errno = errno;
     // wait for terminating properly the child process
     while (waitpid(-1, NULL, WNOHANG) > 0);
     errno = save_errno;
-    fprintf(stdout, ": s %d", s);
+    fprintf(stdout, "signal: %d", s);
 }
 
 /**
