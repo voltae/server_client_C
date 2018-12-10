@@ -6,7 +6,7 @@
  * TCP/IP Lecture Distrubted Systems
  */
 
-
+// -------------------------------------------------------------- includes --
 #include <stdlib.h>         // provides exit(), EXIT_FAILURE
 #include <stdio.h>          // provides the printf()
 #include <string.h>         // provide strerror(), strlen()
@@ -21,20 +21,22 @@
 #include <stdbool.h>        // provides true, false
 #include <limits.h>         // provide max file length
 
+// --------------------------------------------------------------- defines --
 /** @def length of the field status max 10 */
 #define STATUSLENGTH 10
 /** @def length of the field filename max 256 bytes */
 #define MAXFILENAMELENGTH _POSIX_PATH_MAX
 /** @def length of the field file length max 10 bytes i.e 10^10 Bytes far enough */
-#define MAXFILELENGTH 10
+#define MAXFILELENGTH 20
 /** @def chunck size of the reading buffer  */
 #define CHUNK 256
 /** @def LINEOUTPUT prints filename, functionname and linenumber from caller */
 #define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
-
+#define FIELD_DELIMITER 10
 /**
  * @brief ressourcesContainer stores all needed ressources in one single place
  */
+// -------------------------------------------------------------- typedefs --
 typedef struct ressourcesContainer {
     FILE* filepointerClientRead;             /**< File Pointer for Read operation */
     FILE* filepointerClientWrite;            /**< File Pointer for Write operation */
@@ -45,8 +47,14 @@ typedef struct ressourcesContainer {
     int verbose;                             /**< Output in verbose mode 0 off, 1 on */
 } ressourcesContainer;
 
+// --------------------------------------------------------------- globals --
+// globals
+const char* progname;
+
 const char* filenamePrefix = "file=\0";
 const char* lengthPrefix = "len=\0";
+
+// ------------------------------------------------------------- functions --
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
@@ -61,6 +69,12 @@ static int parseField(char* fieldBuffer, char** filename);
 
 static void closeAllRessources(ressourcesContainer* ressources);
 
+/**
+ * @brief main routine of the client implementation sends messages to the server and receive replies.
+ * @param argc int: number of program arguments
+ * @param argv char**: pointerarray with the given arguments
+ * @return int: either 0 in case of success of 1 in case of failure
+ */
 int main(int argc, const char* argv[]) {
     struct addrinfo* serveraddr, * currentServerAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
     struct addrinfo hints;								 // Hints struct for the addr info function
@@ -75,7 +89,6 @@ int main(int argc, const char* argv[]) {
     //--------------------------------------------------
     ressourcesContainer* ressources = malloc(sizeof(ressourcesContainer));
     if (ressources == NULL) {
-        //nicht �ber fkt errorMessage?----------------------------------------------------------------------------------------------------------------------------------
         fprintf(stderr, "%s: Could not allocate memory: %s\n", argv[0], strerror(errno));
         exit(EXIT_FAILURE);
     }
@@ -113,6 +126,8 @@ int main(int argc, const char* argv[]) {
                 serverIP, serverPort, messageOut, imgUrl);
     }
 
+    // set the progname to the global
+    progname = argv[0];
 
     // Get the type of connection Hint struct!
     memset(&hints, 0, sizeof(hints));   // set to NULL
@@ -126,7 +141,7 @@ int main(int argc, const char* argv[]) {
     int addrinfoError = 0;
     //getaddrinfo returns 0 if succeeded, works on serveraddr & hints with known serverPort&IP
     if ((addrinfoError = getaddrinfo(serverIP, serverPort, &hints, &serveraddr) !=
-                         0)) {
+            0)) {
         errorMessage("Could not resolve hostname.", gai_strerror(addrinfoError), ressources);
     }
     // use the struct coming from getaddrinfo
@@ -261,7 +276,7 @@ int main(int argc, const char* argv[]) {
     }
     // Get status
     if (fgets(statusBuffer, STATUSLENGTH, ressources->filepointerClientRead) ==
-        NULL) {     // fgets uses read descriptor
+            NULL) {     // fgets uses read descriptor
         errorMessage("Could not read from server: ", strerror(errno), ressources);
     }
     // try to find status, the beginning of the protocol
@@ -290,7 +305,7 @@ int main(int argc, const char* argv[]) {
     bool isEOF = false;
     do {
         int status = 0;
-        // get filenamePrefix
+        // get filename from Server
         if (fgets(filenameBuffer, MAXFILENAMELENGTH, ressources->filepointerClientRead) == NULL) {
             if (feof(ressources->filepointerClientRead)) {
                 isEOF = true;
@@ -303,7 +318,7 @@ int main(int argc, const char* argv[]) {
                 errorMessage("Could not read from server: ", strerror(errno), ressources);
             }
         }
-
+        // get filelength from server
         if (fgets(lengthBuffer, MAXFILELENGTH, ressources->filepointerClientRead) == NULL) {
             if (feof(ressources->filepointerClientRead)) {
                 isEOF = true;
@@ -316,7 +331,9 @@ int main(int argc, const char* argv[]) {
                 errorMessage("Could not read from server: ", strerror(errno), ressources);
             }
         }
+        // check if the filename has the correct prefix
         if (strncmp(filenameBuffer, filenamePrefix, strlen(filenamePrefix)) != 0) {
+            fprintf(stderr, "filenamePrefix: %s\n", filenameBuffer);
             errorMessage("No filenamePrefix given.", strerror(errno), ressources);
         }
         char* fileLength = NULL;
@@ -328,22 +345,23 @@ int main(int argc, const char* argv[]) {
         if (status == -1) {
             errorMessage("A error occurred during file length parsing\n", strerror(errno), ressources);
         }
+        // parse the file length from the incoming buffer
         parsedFileLength = parseIntfromString(fileLength);
         if (parsedFileLength == -1) {
-            errorMessage("A error occurred during converting int\n"
-                         "", strerror(errno), ressources);
+            errorMessage("A error occurred during converting int\n", strerror(errno), ressources);
         }
         if (ressources->verbose == 1) {
             LINEOUTPUT;
-            fprintf(stdout, "File length buffer: %s,  length: %ld\n",
-                    lengthBuffer, parsedFileLength);
+            fprintf(stdout, "File length buffer: %s,  length: %ld\n", lengthBuffer, parsedFileLength);
         }
         // extract the filenamePrefix from the field
         char* filename = NULL;
 
+        // check if the file length has the correct prefix
         if (strncmp(lengthBuffer, lengthPrefix, strlen(lengthPrefix)) != 0) {
             errorMessage("No file length given.", strerror(errno), ressources);
         }
+        // parse the file length
         status = parseField(filenameBuffer, &filename);
         if (status == -1) {
             errorMessage("A error occurred during filenamePrefix parsing", strerror(errno), ressources);
@@ -553,8 +571,7 @@ static long parseIntfromString(const char* buffer) {
 
     result = strtol(buffer, &eptr, 10);
     if ((eptr == NULL) || (*eptr != '\0')) {
-        fprintf(stderr, "Illegal digit\n");
-        fprintf(stderr, "illegal char :%s result: %ld\n", eptr, result);
+        fprintf(stderr, "%s: Illegal digit\n", progname);
         return -1;
     }
     return result;
@@ -578,18 +595,19 @@ static int parseField(char* fieldBuffer, char** filename) {
     // Filename is too long, print out an error
 
     char* filenameTemp = NULL;
-    // create a new array
+    // create a new array, b - a is enough because of '\n'
     filenameTemp = malloc((b - a) * sizeof(char));
     if (filenameTemp == NULL) {
         LINEOUTPUT;
-        fprintf(stderr, "error allocation memory: %s", strerror(errno));
+        fprintf(stderr, "%s: error allocation memory: %s", progname, strerror(errno));
         return -1;
     }
-    //copy array
-    while (fieldBuffer[a] != 10) {
+    //copy array -till the delimiter '\n' is found
+    while (fieldBuffer[a] != FIELD_DELIMITER) {
         filenameTemp[c++] = fieldBuffer[a++];
     }
-    // Termination of the filenamePrefix, delete the '\n' one char before 0.
+
+    // Termination of the filenamePrefix
     filenameTemp[c] = '\0';
 
     *filename = filenameTemp;
