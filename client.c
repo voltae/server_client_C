@@ -19,12 +19,12 @@
 #include <simple_message_client_commandline_handling.h> // provides smc_parsecommandline()
 #include <math.h>           // provides floor()
 #include <stdbool.h>        // provides true, false
-
+#include <limits.h>         // provide max file length
 
 /** @def length of the field status max 10 */
 #define STATUSLENGTH 10
-/** @def length of the field filename max 255 bytes */
-#define MAXFILENAMELENGTH 255
+/** @def length of the field filename max 256 bytes */
+#define MAXFILENAMELENGTH _POSIX_PATH_MAX
 /** @def length of the field file length max 10 bytes i.e 10^10 Bytes far enough */
 #define MAXFILELENGTH 10
 /** @def chunck size of the reading buffer  */
@@ -51,13 +51,13 @@ static void errorMessage(const char* userMessage, const char* errorMessage, ress
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
 
-static void printAddress(struct sockaddr* sockaddr);
+static int printAddress(struct sockaddr* sockaddr);
 
 static bool writeToDisk(int length, ressourcesContainer* ressources);
 
-static int extractIntfromString(char* buffer, int len);
+static int parseIntfromString(char* buffer);
 
-static void extractFilename(char* filenameBuffer, char** filename, ressourcesContainer* ressources);
+static int parseField(char* fieldBuffer, char** filename);
 
 static void closeAllRessources(ressourcesContainer* ressources);
 
@@ -112,17 +112,17 @@ int main(int argc, const char* argv[]) {
 
     // Get the type of connection Hint struct!
     memset(&hints, 0, sizeof(hints));   // set to NULL
-    hints.ai_family = AF_UNSPEC;          // Allows IP4 and IP6
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;              // redundand da eh null von vorher
+    hints.ai_family = AF_UNSPEC;            // Allows IP4 and IP6
+    hints.ai_socktype = SOCK_STREAM;        // TCP
+    hints.ai_protocol = 0;
     hints.ai_flags = 0;
     //----------------------------------------------------
     //----------initialise members of serveraddr----------
     //----------------------------------------------------
     int addrinfoError = 0;
+    //getaddrinfo returns 0 if succeeded, works on serveraddr & hints with known serverPort&IP
     if ((addrinfoError = getaddrinfo(serverIP, serverPort, &hints, &serveraddr) !=
-                         0)) { //getaddrinfo returns 0 if succeeded, works on serveraddr & hints with known serverPort&IP
-        //nicht �ber fkt errorMessage?----------------------------------------------------------------------------------------------------------------------------------
+                         0)) {
         errorMessage("Could not resolve hostname.", gai_strerror(addrinfoError), ressources);
     }
     // use the struct coming from getaddrinfo
@@ -138,7 +138,6 @@ int main(int argc, const char* argv[]) {
         ressources->socketDescriptorWrite = socket(currentServerAddr->ai_family, currentServerAddr->ai_socktype,
                                                    currentServerAddr->ai_protocol);
         if (ressources->socketDescriptorWrite < 0) {
-            //nicht �ber errorMessage?----------------------------------------------------------------------------------------------------------------------------------
             fprintf(stderr, "Could not create a socket:\n");
             close(ressources->socketDescriptorWrite);
             continue; // try next pointer
@@ -152,7 +151,6 @@ int main(int argc, const char* argv[]) {
         int success = connect(ressources->socketDescriptorWrite, currentServerAddr->ai_addr,
                               currentServerAddr->ai_addrlen);
         if (success == -1) {
-            //nicht �ber errorMessage?----------------------------------------------------------------------------------------------------------------------------------
             fprintf(stderr, "Could not connect to a Server: %s\n", gai_strerror(success));
             close(ressources->socketDescriptorWrite);  // connection failed, close socket.
             continue;   // try next pointer
@@ -173,10 +171,11 @@ int main(int argc, const char* argv[]) {
     if (ressources->verbose == 1) {
         LINEOUTPUT;
         fprintf(stdout, " ... Connection to Server established: ");
-        printAddress(serveraddr->ai_addr);
-    }
+        if ((printAddress(serveraddr->ai_addr)) == -1) {
+            fprintf(stderr, "no address was found");
+        }
 
-    /* Here begins the write read loop of the client */
+    }
 
     //---------------------------------------------------------------------------------
     //----------establish reading connection to server (socketDescriptorRead)----------
@@ -264,7 +263,11 @@ int main(int argc, const char* argv[]) {
     }
     // try to find status, the beginning of the protocol
 
-    extractedStatus = extractIntfromString(statusBuffer, strlen(statusBuffer));
+    extractedStatus = parseIntfromString(statusBuffer);
+    if (extractedStatus == -1) {
+        LINEOUTPUT;
+        errorMessage("Error occured during parsing the file length", strerror(errno), ressources);
+    }
     if (ressources->verbose == 1) {
         LINEOUTPUT;
         fprintf(stdout, "Status is: %d\n", extractedStatus);
@@ -303,8 +306,10 @@ int main(int argc, const char* argv[]) {
         if (strncmp(filenameBuffer, filename, strlen(filename)) != 0) {
             errorMessage("No filename given.", strerror(errno), ressources);
         }
-        extractedHtmlFileLength = extractIntfromString(htmlLenghtBuffer, MAXFILELENGTH);
-
+        extractedHtmlFileLength = parseIntfromString(htmlLenghtBuffer);
+        if (extractedHtmlFileLength == -1) {
+            errorMessage("A error occurred during file length parsing", strerror(errno), ressources);
+        }
         if (ressources->verbose == 1) {
             LINEOUTPUT;
             fprintf(stdout, "File length buffer: %s,  length: %d\n",
@@ -316,7 +321,10 @@ int main(int argc, const char* argv[]) {
         if (strncmp(htmlLenghtBuffer, length, strlen(length)) != 0) {
             errorMessage("No file length given.", strerror(errno), ressources);
         }
-        extractFilename(filenameBuffer, &filename, ressources);
+        int status = parseField(filenameBuffer, &filename);
+        if (status == -1) {
+            errorMessage("A error occurred during filename parsing", strerror(errno), ressources);
+        }
         if (ressources->verbose == 1) {
             LINEOUTPUT;
             fprintf(stdout, "Filename: %s\n", filename);
@@ -405,10 +413,6 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
             fprintf(stdout, "Written bytes %d to disk\n", writeBytes);
             LINEOUTPUT;
             fprintf(stdout, "Number ofCycle: %d of %d\n", i + 1, cycles);
-        }
-        if (ressources->verbose == 1) {
-            LINEOUTPUT;
-            fprintf(stdout, "Wrote to Disk: %s\n", partioned_read_array);
         }
     }
 
@@ -517,100 +521,102 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
 }
 
 /**
-* @brief extractIntfromString extracts an integer from the given string
-* @param buffer contains given string
+* @brief parseIntfromString parses an integer from the given string wit the prefix 'len='
+* @param buffer contains given string with prefix
 * @param len contains length of the given string
-* @return integer extracted from the given string (buffer)-----------------------------------------------------------------------------------------------------------
+* @return integer extracted from the given string (buffer) or -1 in case conversion failed
 */
-static int extractIntfromString(char* buffer, int len) {
+static int parseIntfromString(char* buffer) {
+    int result = 0;
+    char* tempBuffer;
+    int status = parseField(buffer, &tempBuffer);
+    if (status == -1) {
+        LINEOUTPUT;
+        return -1;
+    }
     errno = 0;
-    char tempBuffer[len];
-    int resultLen = 0, result;
-    for (int i = 0; i < len; i++) {
-        if (buffer[i] >= '0' && buffer[i] <= '9')
-            tempBuffer[resultLen++] = buffer[i];
+    char* eptr;
+    result = (int) strtol(tempBuffer, &eptr, 10);
+    free(tempBuffer);       // not needed anymore
+    if ((eptr == NULL) || (*eptr != '\0')) {
+        fprintf(stderr, "Illegal digit\n");
+        return -1;
     }
-    // @TODO: return -1 when error and handle it in caller function------------------------------------------------------------------------------------------------------
-    result = (int) strtol(tempBuffer, NULL, 10);
-    if (errno == EINVAL) {
-        fprintf(stderr, "Illegal digit");
-    }
-	//TODO: irregulärer filename
     return result;
 }
 
 /**
-* @brief extractFilename extracts the filename from the ???????????????????????????????????????????????????????????????????????----------------------------------------
-* @param buffer contains given string
-* @param len contains length of the given string
-* @return integer extracted from the given string (buffer)-----------------------------------------------------------------------------------------------------------
-*/
-//TODO LARA: was tut die fkt? was kann filenameBuffer, filenameTemp, filename? kann man was streichen?------------------------------------------------------------------
-static void extractFilename(char* filenameBuffer, char** filename, ressourcesContainer* ressources) {
+ * parse a filename from given buffer with the prefix of 'filename='
+ * @param fieldBuffer char *, buffer with prefix
+ * @param filename char **, pointer to the filename
+ * @return 0 in case parsing was successful, -1 if not
+ */
+static int parseField(char* fieldBuffer, char** filename) {
     int a = 0, b = 0, c = 0;
     // find the '=' sign
-    while (filenameBuffer[a]) {
-        if (filenameBuffer[a++] == '=') { break; }
+    while (fieldBuffer[a]) {
+        if (fieldBuffer[a++] == '=') { break; }
     }
     // find the '\0'
     b = a;
-    while (filenameBuffer[b++]); // find endline '\0'
+    while (fieldBuffer[b++]); // find endline '\0'
     // Filename is too long, pritn out an error
     if (b >= MAXFILENAMELENGTH - 1) {
-        closeAllRessources(ressources);
-        errorMessage("Filename is to long", "Buffer overflow", ressources);
+        LINEOUTPUT;
+        fprintf(stderr, "Filename is to long Buffer overflow");
+        return -1;
     }
     char* filenameTemp = NULL;
     // create a new array
     filenameTemp = malloc((b - a) * sizeof(char));
     if (filenameTemp == NULL) {
-        errorMessage("error allocation memory", strerror(errno), ressources);
+        LINEOUTPUT;
+        fprintf(stderr, "error allocation memory: %s", strerror(errno));
+        return -1;
     }
     //copy array
-    while (filenameBuffer[a]) {
-        filenameTemp[c++] = filenameBuffer[a++];
+    while (fieldBuffer[a]) {
+        filenameTemp[c++] = fieldBuffer[a++];
     }
     // Termination of the filename, delete the '\n' one char before 0.
     filenameTemp[c - 1] = '\0';
     *filename = filenameTemp;
-    LINEOUTPUT;
-    fprintf(stdout, "Filename:%s\n ", filenameTemp);
 
+    return 0;
 }
 
 /**
 * @brief closeAllRessources closes all ressources and prints errormessage if an error occurs
 * @param ressources is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
 */
-//return not used because?????????????------------------------------------------------------------------------------------------------------------------
 static void closeAllRessources(ressourcesContainer* ressources) {
     if (ressources->socketDescriptorRead != -1) {
         if (close(ressources->socketDescriptorRead) != 0) {
-            fprintf(stderr, "Could not close socketDescriptorRead");
+            fprintf(stderr, "Could not close socketDescriptorRead.\n");
         }
         ressources->socketDescriptorRead = -1;
     }
     if (ressources->socketDescriptorWrite != -1) {
         if (close(ressources->socketDescriptorWrite) != 0) {
-            fprintf(stderr, "Could not close socketDescriptorWrite");
+            fprintf(stderr, "Could not close socketDescriptorWrite.\n");
         }
         ressources->socketDescriptorWrite = -1;
     }
     if (ressources->filepointerClientRead != NULL) {
         if (fclose(ressources->filepointerClientRead) != 0) {
-            fprintf(stderr, "Could not close filepointerClientRead");
+            fprintf(stderr, "Could not close filepointerClientRead.\n");
         }
         ressources->filepointerClientRead = NULL;
     }
     if (ressources->filepointerClientWrite != NULL) {
         if (fclose(ressources->filepointerClientWrite) != 0) {
-            fprintf(stderr, "Could not close filepointerClientWrite");
+            fprintf(stderr, "Could not close filepointerClientWrite.\n");
         }
         ressources->filepointerClientWrite = NULL;
     }
     if (ressources->filepointerClientWriteDisk != NULL) {
         if (fclose(ressources->filepointerClientWriteDisk) != 0) {
-            fprintf(stderr, "Could not close clientWriteDiskFp");
+            fprintf(stderr, "Could not close clientWriteDiskFp.\n");
         }
         ressources->filepointerClientWriteDisk = NULL;
     }
@@ -619,9 +625,9 @@ static void closeAllRessources(ressourcesContainer* ressources) {
 /**
  * @brief printAdress prints the socket address and port to stdout
  * @param sockaddr contains the given socket address
+ * @return 0 in case a inet address was found -1 in error case.
  */
- //return not used because?????????????------------------------------------------------------------------------------------------------------------------
-static void printAddress(struct sockaddr* sockaddr) {
+static int printAddress(struct sockaddr* sockaddr) {
     char address_ip4[INET_ADDRSTRLEN];
     char address_ip6[INET6_ADDRSTRLEN];
     switch (sockaddr->sa_family) {
@@ -633,7 +639,10 @@ static void printAddress(struct sockaddr* sockaddr) {
             inet_ntop(AF_INET6, &(((struct sockaddr_in6*) sockaddr)->sin6_addr), address_ip6, INET6_ADDRSTRLEN);
             fprintf(stdout, "%s:%d\n", address_ip6, ntohs(((struct sockaddr_in6*) sockaddr)->sin6_port));
             break;
+        default:
+            return -1;
     }
+    return 0;
 }
 
 /* usage: simple_message_client options
