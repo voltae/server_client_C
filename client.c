@@ -22,15 +22,15 @@
 #include <limits.h>         // provide max file length
 
 // --------------------------------------------------------------- defines --
-/** @def length of the field status max 10 */
+/** @brief length of the field status max 10 */
 #define STATUSLENGTH 10
-/** @def length of the field filename max 256 bytes */
+/** @brief length of the field filename max 256 bytes */
 #define MAXFILENAMELENGTH _POSIX_PATH_MAX
-/** @def length of the field file length max 10 bytes i.e 10^10 Bytes far enough */
+/** @brief length of the field file length max 10 bytes i.e 10^10 Bytes far enough */
 #define MAXFILELENGTH 20
-/** @def chunck size of the reading buffer  */
+/** @brief chunck size of the reading buffer  */
 #define CHUNK 256
-/** @def LINEOUTPUT prints filename, functionname and linenumber from caller */
+/** @brief LINEOUTPUT prints filename, functionname and linenumber from caller */
 #define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
 #define FIELD_DELIMITER 10
 /**
@@ -48,10 +48,11 @@ typedef struct ressourcesContainer {
 } ressourcesContainer;
 
 // --------------------------------------------------------------- globals --
-// globals
+/** @brief progname char*: stores the program name for correct error codes */
 const char* progname;
-
+/** @brief filenamePrefix const char*: the filename prefix used by this protocol */
 const char* filenamePrefix = "file=\0";
+/** @brief lengthPrefix const char*: file length prefix used by this protcol */
 const char* lengthPrefix = "len=\0";
 
 // ------------------------------------------------------------- functions --

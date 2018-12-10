@@ -20,21 +20,21 @@
 
 // --------------------------------------------------------------- defines --
 /**
- * @def Line output. note all log notes must be on stderr, because stdout
+ * @brief Line output. note all log notes must be on stderr, because stdout
  * redirected to the socket
  */
 #define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
 
 /**
- * @def maximal amount of requests on listening socket
+ * @brief maximal amount of requests on listening socket
  */
 #define BACKLOG 5
 /**
- * @def absolute path to the business logic
+ * @brief absolute path to the business logic
  */
 #define LOGICS_PATH "/usr/local/bin/simple_message_server_logic"
 /**
- * @def name of the business logic application called in this function
+ * @brief name of the business logic application called in this function
  */
 #define LOGICS_NAME "simple_message_server_logic"
 

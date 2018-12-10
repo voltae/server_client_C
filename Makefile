@@ -91,3 +91,10 @@ pdf: html
     $(RM) *.pdf *.html *.tex *.aux *.sty *.log *.eps *.out *.ind *.idx \
     *.ilg *.toc *.tps Makefile && \
 	$(MV) refman.save refman.pdf
+##
+## ---------------------------------------------------------- dependencies --
+##
+
+##
+## =================================================================== eof ==
+##
