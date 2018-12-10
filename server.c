@@ -28,6 +28,11 @@ typedef struct ressourcesContainer {
     int fd_socket_connected;     /**< File descriptor for the connected socket */
     const char* progname;        /**< Progamm name argv[0] */
 } ressources;
+/**
+ * @def Line output. note all log notes must be on stderr, because stdout
+ * redirected to the socket
+ */
+#define LINEOUTPUT fprintf(stderr, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
 
 /**
  * @def maximal amount of requests on listening socket
@@ -50,7 +55,7 @@ static void closeRessources(ressources res);
 
 static void printAddress(struct sockaddr_in sockaddr);
 
-static void evaluateParameters(int argc, char* const* argv, u_int16_t* port);
+static void evaluateParameters(int argc, char* const* argv, u_int16_t* port, int* verbose);
 
 static void sigchild_handler(int s);
 
@@ -66,8 +71,9 @@ int main(int argc, char* const* argv) {
     struct sockaddr_in server_add, client_add;  // Server Socket, Client Socket
     struct sigaction signalact;
     uint16_t port = 0;                          // Initialize Port Variable for Parameter check
+    int verbose = 0;
 
-    evaluateParameters(argc, argv, &port);
+    evaluateParameters(argc, argv, &port, &verbose);
     // SOCKET()
     serverRessources.fd_socket_listen = socket(AF_INET, SOCK_STREAM, 0);
     if (serverRessources.fd_socket_listen < 0) {
@@ -100,11 +106,12 @@ int main(int argc, char* const* argv) {
     if (listen(serverRessources.fd_socket_listen, BACKLOG) < 0) {
         errorMessage("Could not listen to socket: ", strerror(errno), serverRessources);
     }
-
-    fprintf(stdout, "Server listen on: ");
-    printAddress(server_add);
-    fprintf(stdout, "Server listening. Waiting ...\n");
-
+    if (verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Server listen on: ");
+        printAddress(server_add);
+        fprintf(stdout, "Server listening. Waiting ...\n");
+    }
     // add the child handler to the address struct
     signalact.sa_handler = sigchild_handler;        // let the child action be handled by function
     sigemptyset(&signalact.sa_mask);
@@ -122,10 +129,11 @@ int main(int argc, char* const* argv) {
         if (serverRessources.fd_socket_connected < 0) {
             errorMessage("Could not accept socket: ", strerror(errno), serverRessources);
         }
-
-        fprintf(stdout, "Got connection from: ");
-        printAddress(client_add);
-
+        if (verbose == 1) {
+            LINEOUTPUT;
+            fprintf(stdout, "Got connection from: ");
+            printAddress(client_add);
+        }
         // Forking a new process
         int fork_return = fork();
         // ------ ERROR CASE --------
@@ -138,16 +146,20 @@ int main(int argc, char* const* argv) {
         else if (fork_return == 0) {
             // Child process
             // Redirect the STDIN to the socket
-            fprintf(stderr, "Child process, forking done\n");   // prints must be done to stderr,
-
+            if (verbose == 1) {
+                LINEOUTPUT;
+                fprintf(stderr, "Child process, forking done\n");   // prints must be done to stderr,
+            }
             if (serverRessources.fd_socket_connected != STDIN_FILENO) {
                 int statusDupRead = dup2(serverRessources.fd_socket_connected, STDIN_FILENO);
                 if (statusDupRead == -1) {
                     errorMessage("Could not redirect the read socket", strerror(errno), serverRessources);
                 }
             }
-            fprintf(stderr, "Child process, Read socket duplicated to stdin\n");
-
+            if (verbose == 1) {
+                LINEOUTPUT;
+                fprintf(stderr, "Child process, Read socket duplicated to stdin\n");
+            }
             // Redirect the STDOUT to the socket
             if (serverRessources.fd_socket_connected != STDOUT_FILENO) {
                 int statusDupWrite = dup2(serverRessources.fd_socket_connected, STDOUT_FILENO);
@@ -155,8 +167,10 @@ int main(int argc, char* const* argv) {
                     errorMessage("Could not redirect the write socket", strerror(errno), serverRessources);
                 }
             }
-            fprintf(stderr, "Child process, Write socket duplicated to stdout\n");
-
+            if (verbose == 1) {
+                LINEOUTPUT;
+                fprintf(stderr, "Child process, Write socket duplicated to stdout\n");
+            }
             // close listen connection in the child process
             if (close(serverRessources.fd_socket_listen) != 0) {
                 errorMessage("Cloud not close the listen socket in child process", strerror(errno), serverRessources);
@@ -164,8 +178,11 @@ int main(int argc, char* const* argv) {
             serverRessources.fd_socket_listen = -1;
 
             // *** Do the exec here ***
-            fprintf(stderr, "Closed connected socket.\n");
-            fprintf(stderr, "Child process, executing business logic\n");
+            if (verbose == 1) {
+                LINEOUTPUT;
+                fprintf(stderr, "Closed connected socket.\n");
+                fprintf(stderr, "Child process, executing business logic\n");
+            }
             close(serverRessources.fd_socket_connected);
             execl(LOGICS_PATH, LOGICS_NAME, NULL);
 
@@ -177,7 +194,10 @@ int main(int argc, char* const* argv) {
         else {
             // Parent Process
             // Close the connected socket in the parent process
-            fprintf(stdout, "Parent process, close the connected socket\n");
+            if (verbose == 1) {
+                LINEOUTPUT;
+                fprintf(stdout, "Parent process, close the connected socket\n");
+            }
             close(serverRessources.fd_socket_connected);
             continue;   // next iteration
         }
@@ -199,7 +219,7 @@ static void sigchild_handler(int s) {
  * @param argv char* Pointerarray containing all parametres
  * @param port u_int16_t listening port of the server
  */
-static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
+static void evaluateParameters(int argc, char* const* argv, u_int16_t* port, int* verbose) {
     int opt;
     char* endpointer = NULL;
     int tempPort = 0;
@@ -208,7 +228,7 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
     if (argc < 2) {
         usage(stderr, argv[0], 1);
     }
-    while ((opt = getopt(argc, argv, "hp:")) != -1) {
+    while ((opt = getopt(argc, argv, "hvp:")) != -1) {
         switch (opt) {
             case 'p':
                 tempPort = (int) strtol(optarg, &endpointer, 10);
@@ -219,6 +239,9 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port) {
                 break;
             case 'h':
                 usage(stdout, argv[0], 0);
+                break;
+            case 'v':
+                *verbose = 1;
                 break;
             default:
                 usage(stderr, argv[0], 1);
@@ -268,6 +291,7 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
     fprintf(stream, "usage: %s option\n", cmnd);
     fprintf(stream, "\t-p, --port <port>\n");
     fprintf(stream, "\t-h, --help\n");
+    fprintf(stream, "\t-v, --verbose\n");
     exit(exitcode);
 }
 
