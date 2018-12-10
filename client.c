@@ -45,8 +45,8 @@ typedef struct ressourcesContainer {
     int verbose;                             /**< Output in verbose mode 0 off, 1 on */
 } ressourcesContainer;
 
-const char* filename = "file=\0";
-const char* length = "len=\0";
+const char* filenamePrefix = "file=\0";
+const char* lengthPrefix = "len=\0";
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources);
 
 static void usage(FILE* stream, const char* cmnd, int exitcode);
@@ -55,7 +55,7 @@ static int printAddress(struct sockaddr* sockaddr);
 
 static bool writeToDisk(int length, ressourcesContainer* ressources);
 
-static int parseIntfromString(char* buffer);
+static int parseIntfromString(const char* buffer);
 
 static int parseField(char* fieldBuffer, char** filename);
 
@@ -68,7 +68,7 @@ int main(int argc, const char* argv[]) {
     int extractedStatus;                                 // integer holds status
     char filenameBuffer[MAXFILENAMELENGTH];				 // Buffer for File name max 255 Chars
     char htmlLenghtBuffer[MAXFILELENGTH];                // Max size of length
-    int extractedHtmlFileLength;
+    int parsedFileLength;
 
     //--------------------------------------------------
     //----------allocate the ressources struct----------
@@ -103,7 +103,11 @@ int main(int argc, const char* argv[]) {
 
     // call the argument parser
     smc_parsecommandline(argc, argv, usage, &serverIP, &serverPort, &user, &messageOut, &imgUrl, &ressources->verbose);
+    int serverPortInt = parseIntfromString(serverPort);
 
+    if ((serverPortInt < 0) || (serverPortInt > 65535)) {
+        usage(stderr, "Port outside range", 1);
+    }
     if (ressources->verbose == 1) {
         LINEOUTPUT;
         fprintf(stdout, "Using this options: serverIP: %s, serverPort: %s, messageOut: %s, image_url: %s\n",
@@ -174,7 +178,6 @@ int main(int argc, const char* argv[]) {
         if ((printAddress(serveraddr->ai_addr)) == -1) {
             fprintf(stderr, "no address was found");
         }
-
     }
 
     //---------------------------------------------------------------------------------
@@ -193,8 +196,8 @@ int main(int argc, const char* argv[]) {
                 ressources->socketDescriptorWrite, ressources->socketDescriptorRead);
     }
     if (ressources->verbose == 1) {
-        fprintf(stdout, "[%s, %s, %d]: Creating a write socket\n",
-                __FILE__, __func__, __LINE__);
+        LINEOUTPUT;
+        fprintf(stdout, "Creating a write socket\n");
     }
     //---------------------------------------------------------------------------------------------------
     //----------open Filepointer to write/read (filepointerClientRead & filepointerClientWrite)----------
@@ -262,22 +265,32 @@ int main(int argc, const char* argv[]) {
         errorMessage("Could not read from server: ", strerror(errno), ressources);
     }
     // try to find status, the beginning of the protocol
-
-    extractedStatus = parseIntfromString(statusBuffer);
+    char* statusPlain;
+    int status = parseField(statusBuffer, &statusPlain);
+    if (status == -1) {
+        LINEOUTPUT;
+        errorMessage("Error occured during parsing the status field", strerror(errno), ressources);
+    }
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Status buffer is: %s\n", statusPlain);
+    }
+    extractedStatus = parseIntfromString(statusPlain);
     if (extractedStatus == -1) {
         LINEOUTPUT;
-        errorMessage("Error occured during parsing the file length", strerror(errno), ressources);
+        errorMessage("Error occured during converting the file length", strerror(errno), ressources);
     }
     if (ressources->verbose == 1) {
         LINEOUTPUT;
         fprintf(stdout, "Status is: %d\n", extractedStatus);
     }
-
+    free(statusPlain);
     // Loop till finding EOF
     // bool isEOF = false;
     bool isEOF = false;
     do {
-        // get filename
+        int status = 0;
+        // get filenamePrefix
         if (fgets(filenameBuffer, MAXFILENAMELENGTH, ressources->filepointerClientRead) == NULL) {
             if (feof(ressources->filepointerClientRead)) {
                 isEOF = true;
@@ -303,27 +316,37 @@ int main(int argc, const char* argv[]) {
                 errorMessage("Could not read from server: ", strerror(errno), ressources);
             }
         }
-        if (strncmp(filenameBuffer, filename, strlen(filename)) != 0) {
-            errorMessage("No filename given.", strerror(errno), ressources);
+        if (strncmp(filenameBuffer, filenamePrefix, strlen(filenamePrefix)) != 0) {
+            errorMessage("No filenamePrefix given.", strerror(errno), ressources);
         }
-        extractedHtmlFileLength = parseIntfromString(htmlLenghtBuffer);
-        if (extractedHtmlFileLength == -1) {
-            errorMessage("A error occurred during file length parsing", strerror(errno), ressources);
+        char* fileLength = NULL;
+        status = parseField(htmlLenghtBuffer, &fileLength);
+        if (ressources->verbose == 1) {
+            LINEOUTPUT;
+            fprintf(stdout, "filelength: %s", htmlLenghtBuffer);
+        }
+        if (status == -1) {
+            errorMessage("A error occurred during file length parsing\n", strerror(errno), ressources);
+        }
+        parsedFileLength = parseIntfromString(fileLength);
+        if (parsedFileLength == -1) {
+            errorMessage("A error occurred during converting int\n"
+                         "", strerror(errno), ressources);
         }
         if (ressources->verbose == 1) {
             LINEOUTPUT;
             fprintf(stdout, "File length buffer: %s,  length: %d\n",
-                    htmlLenghtBuffer, extractedHtmlFileLength);
+                    htmlLenghtBuffer, parsedFileLength);
         }
-        // extract the filename from the field
+        // extract the filenamePrefix from the field
         char* filename = NULL;
 
-        if (strncmp(htmlLenghtBuffer, length, strlen(length)) != 0) {
+        if (strncmp(htmlLenghtBuffer, lengthPrefix, strlen(lengthPrefix)) != 0) {
             errorMessage("No file length given.", strerror(errno), ressources);
         }
-        int status = parseField(filenameBuffer, &filename);
+        status = parseField(filenameBuffer, &filename);
         if (status == -1) {
-            errorMessage("A error occurred during filename parsing", strerror(errno), ressources);
+            errorMessage("A error occurred during filenamePrefix parsing", strerror(errno), ressources);
         }
         if (ressources->verbose == 1) {
             LINEOUTPUT;
@@ -332,12 +355,14 @@ int main(int argc, const char* argv[]) {
         // open filepointer for disk
         ressources->filepointerClientWriteDisk = fopen(filename, "w");
 
-        // we don't need the pointer anymore free it.
+        // we don't need the pointer anymore free it
+        free(fileLength);
+        fileLength = NULL;
         free(filename);
         filename = NULL;
 
         /* Call the write function */
-        isEOF = writeToDisk(extractedHtmlFileLength, ressources);
+        isEOF = writeToDisk(parsedFileLength, ressources);
     } while (!isEOF);
 
     //---------------------------------------------------------------------------------------------------
@@ -452,10 +477,7 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
                 LINEOUTPUT;
                 fprintf(stdout, "Wrote %d of %d read Bytes to disk\n", actualWrite, actualRead);
             }
-            if (ressources->verbose == 1) {
-                LINEOUTPUT;
-                fprintf(stdout, "Wrote to Disk: %s\n", contentRestOfFile);
-            }
+
             free(contentRestOfFile);   // done with the lengthRest
             contentRestOfFile = NULL;
         }
@@ -477,8 +499,10 @@ bool writeToDisk(int length, ressourcesContainer* ressources) {
         fprintf(stdout, "Is end of File: %d\n", isEOF);
     }
     loops++;
-    fprintf(stdout, "Looping the write routine: %d\n", loops);
-
+    if (ressources->verbose == 1) {
+        LINEOUTPUT;
+        fprintf(stdout, "Looping the write routine: %d\n", loops);
+    }
 
     return isEOF;
 }
@@ -526,18 +550,11 @@ static void usage(FILE* stream, const char* cmnd, int exitcode) {
 * @param len contains length of the given string
 * @return integer extracted from the given string (buffer) or -1 in case conversion failed
 */
-static int parseIntfromString(char* buffer) {
+static int parseIntfromString(const char* buffer) {
     int result = 0;
-    char* tempBuffer;
-    int status = parseField(buffer, &tempBuffer);
-    if (status == -1) {
-        LINEOUTPUT;
-        return -1;
-    }
     errno = 0;
     char* eptr;
-    result = (int) strtol(tempBuffer, &eptr, 10);
-    free(tempBuffer);       // not needed anymore
+    result = (int) strtol(buffer, &eptr, 10);
     if ((eptr == NULL) || (*eptr != '\0')) {
         fprintf(stderr, "Illegal digit\n");
         return -1;
@@ -560,7 +577,7 @@ static int parseField(char* fieldBuffer, char** filename) {
     // find the '\0'
     b = a;
     while (fieldBuffer[b++]); // find endline '\0'
-    // Filename is too long, pritn out an error
+    // Filename is too long, print out an error
     if (b >= MAXFILENAMELENGTH - 1) {
         LINEOUTPUT;
         fprintf(stderr, "Filename is to long Buffer overflow");
@@ -578,7 +595,7 @@ static int parseField(char* fieldBuffer, char** filename) {
     while (fieldBuffer[a]) {
         filenameTemp[c++] = fieldBuffer[a++];
     }
-    // Termination of the filename, delete the '\n' one char before 0.
+    // Termination of the filenamePrefix, delete the '\n' one char before 0.
     filenameTemp[c - 1] = '\0';
     *filename = filenameTemp;
 

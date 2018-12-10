@@ -32,7 +32,7 @@ typedef struct ressourcesContainer {
  * @def Line output. note all log notes must be on stderr, because stdout
  * redirected to the socket
  */
-#define LINEOUTPUT fprintf(stderr, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
+#define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
 
 /**
  * @def maximal amount of requests on listening socket
@@ -148,7 +148,7 @@ int main(int argc, char* const* argv) {
             // Redirect the STDIN to the socket
             if (verbose == 1) {
                 LINEOUTPUT;
-                fprintf(stderr, "Child process, forking done\n");   // prints must be done to stderr,
+                fprintf(stdout, "Child process, forking done\n");   // prints must be done to stderr,
             }
             if (serverRessources.fd_socket_connected != STDIN_FILENO) {
                 int statusDupRead = dup2(serverRessources.fd_socket_connected, STDIN_FILENO);
@@ -156,10 +156,7 @@ int main(int argc, char* const* argv) {
                     errorMessage("Could not redirect the read socket", strerror(errno), serverRessources);
                 }
             }
-            if (verbose == 1) {
-                LINEOUTPUT;
-                fprintf(stderr, "Child process, Read socket duplicated to stdin\n");
-            }
+
             // Redirect the STDOUT to the socket
             if (serverRessources.fd_socket_connected != STDOUT_FILENO) {
                 int statusDupWrite = dup2(serverRessources.fd_socket_connected, STDOUT_FILENO);
@@ -167,10 +164,7 @@ int main(int argc, char* const* argv) {
                     errorMessage("Could not redirect the write socket", strerror(errno), serverRessources);
                 }
             }
-            if (verbose == 1) {
-                LINEOUTPUT;
-                fprintf(stderr, "Child process, Write socket duplicated to stdout\n");
-            }
+
             // close listen connection in the child process
             if (close(serverRessources.fd_socket_listen) != 0) {
                 errorMessage("Cloud not close the listen socket in child process", strerror(errno), serverRessources);
@@ -178,16 +172,13 @@ int main(int argc, char* const* argv) {
             serverRessources.fd_socket_listen = -1;
 
             // *** Do the exec here ***
-            if (verbose == 1) {
-                LINEOUTPUT;
-                fprintf(stderr, "Closed connected socket.\n");
-                fprintf(stderr, "Child process, executing business logic\n");
-            }
+
             close(serverRessources.fd_socket_connected);
-            execl(LOGICS_PATH, LOGICS_NAME, NULL);
-
-
-            exit(0);
+            int status = execl(LOGICS_PATH, LOGICS_NAME, NULL);
+            if (status == -1) {
+                errorMessage("Could not execute bussiness logic", "error in execl", serverRessources);
+                exit(EXIT_FAILURE);
+            }
 
         }
             // ------- PARENT PROCESS --------
