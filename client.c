@@ -29,7 +29,7 @@
 #define MAXFILELENGTH 10
 /** @def chunck size of the reading buffer  */
 #define CHUNK 256
-
+/** @def LINEOUTPUT prints filename, functionname and linenumber from caller */
 #define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
 
 /**
@@ -73,7 +73,6 @@ int main(int argc, const char* argv[]) {
     //--------------------------------------------------
     //----------allocate the ressources struct----------
     //--------------------------------------------------
-    //@TODO: deallocate struct
     ressourcesContainer* ressources = malloc(sizeof(ressourcesContainer));
     if (ressources == NULL) {
         //nicht �ber fkt errorMessage?----------------------------------------------------------------------------------------------------------------------------------
@@ -374,17 +373,14 @@ int main(int argc, const char* argv[]) {
     if (fclose(ressources->filepointerClientRead) != 0) {
         errorMessage("Could not close the read filestream to socket", strerror(errno), ressources);
     }
+    /* Close the read connection from the client, over and out ... */
     ressources->filepointerClientRead = NULL;
     ressources->socketDescriptorRead = -1;
     if (ressources->verbose == 1) {
         LINEOUTPUT;
         fprintf(stdout, "Closing Filestream Client Read \n");
     }
-    /* Close the read connection from the client, over and out ... */
-    if (ressources->verbose == 1) {
-        LINEOUTPUT;
-        fprintf(stdout, "socketDescriptorRead: %d\n", ressources->socketDescriptorRead);
-    }
+
     // Everything went well, deallocate the ressources struct
     free(ressources);
     return extractedStatus;
@@ -392,9 +388,9 @@ int main(int argc, const char* argv[]) {
 
 /**
 * @brief writeToDisk writes received message (information) into known location on disk indicated through filepointerClientWriteDisk
-* @param length is the length of the received file which is wanted to be written onto the disk
-* @param ressources is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
-* @return 0 if failed, 1 if succeeded
+* @param length int: is the length of the received file which is wanted to be written onto the disk
+* @param ressources ressourcesContainer*: is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
+* @return int: 0 if failed, 1 if succeeded
 */
 bool writeToDisk(long length, ressourcesContainer* ressources) {
     static int loops;
@@ -509,9 +505,9 @@ bool writeToDisk(long length, ressourcesContainer* ressources) {
 
 /**
 * @brief errorMessage prints an error message to the standarderror, then closes all ressources (and frees every pointer) and finally exits the program with an EXIT_FAILURE
-* @param userMessage contains the message telling which error has occured
-* @param errorMessage contains the errormessage from errno
-* @param ressources is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
+* @param userMessage char*: contains the message telling which error has occured
+* @param errorMessage char*: contains the errormessage from errno
+* @param ressources ressourcesContainer*: is a struct containing every information of the used socket, as well as the programname and the information if the output should be verbose
 */
 //no return needed because if function is called, program will be exited in end of the function - return never used
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources) {
@@ -555,7 +551,6 @@ static long parseIntfromString(const char* buffer) {
     errno = 0;
     char* eptr = NULL;
 
-    printf("parseIntfromString: %s\n", buffer);
     result = strtol(buffer, &eptr, 10);
     if ((eptr == NULL) || (*eptr != '\0')) {
         fprintf(stderr, "Illegal digit\n");
@@ -579,31 +574,25 @@ static int parseField(char* fieldBuffer, char** filename) {
     }
     // find the '\0'b
     b = a;
-    while (fieldBuffer[b++]); // find endline '\0'
+    while (fieldBuffer[b++]); // find endline '\0', but before is '\n'
     // Filename is too long, print out an error
 
     char* filenameTemp = NULL;
     // create a new array
-    filenameTemp = malloc((b - a + 1) * sizeof(char));
+    filenameTemp = malloc((b - a) * sizeof(char));
     if (filenameTemp == NULL) {
         LINEOUTPUT;
         fprintf(stderr, "error allocation memory: %s", strerror(errno));
         return -1;
     }
     //copy array
-    while (fieldBuffer[a]) {
+    while (fieldBuffer[a] != 10) {
         filenameTemp[c++] = fieldBuffer[a++];
     }
     // Termination of the filenamePrefix, delete the '\n' one char before 0.
-    if (filenameTemp[c - 1] == 10) {
-        filenameTemp[c - 1] = '\0';
-    } else {
-        filenameTemp[c] = '\0';
-    }
+    filenameTemp[c] = '\0';
+
     *filename = filenameTemp;
-    LINEOUTPUT;
-    printf("parseField: Buffer: %s, parsed: %s\n", fieldBuffer, *filename);
-    printf("a: %d, b: %d, c: %d", a, b, c);
     return 0;
 }
 
