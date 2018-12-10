@@ -280,9 +280,9 @@ static void closeRessources(ressources res) {
  */
 static void usage(FILE* stream, const char* cmnd, int exitcode) {
     fprintf(stream, "usage: %s option\n", cmnd);
-    fprintf(stream, "\t-p, --port <port>\n");
-    fprintf(stream, "\t-h, --help\n");
-    fprintf(stream, "\t-v, --verbose\n");
+    fprintf(stream, "\t-p <port> \t well-known port of the server [0..65535]\n");
+    fprintf(stream, "\t-h \t\t outputs this info\n");
+    fprintf(stream, "\t-v\t\t verbose output \n");
     exit(exitcode);
 }
 
