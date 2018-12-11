@@ -1,4 +1,5 @@
 /**
+ * @file simple_message.client.c
  * @author Valentin Platzgummer - ic17b096
  * @author Lara Kammerer - ic17b001
  * @date 18.11.18
@@ -32,11 +33,13 @@
 #define CHUNK 256
 /** @brief LINEOUTPUT prints filename, functionname and linenumber from caller */
 #define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
+/** @brief FIELD_DELIMITER defines the delimiter between the fields defined in the protocol */
 #define FIELD_DELIMITER 10
-/**
- * @brief ressourcesContainer stores all needed ressources in one single place
- */
+/** @brief FIELD_ASSIGNMENT defines the assignment sign between key and value */
+#define FIELD_ASSIGNMENT '='
+
 // -------------------------------------------------------------- typedefs --
+/** @brief ressourcesContainer stores all needed ressources in one single place */
 typedef struct ressourcesContainer {
     FILE* filepointerClientRead;             /**< File Pointer for Read operation */
     FILE* filepointerClientWrite;            /**< File Pointer for Write operation */
@@ -51,23 +54,17 @@ typedef struct ressourcesContainer {
 /** @brief progname char*: stores the program name for correct error codes */
 const char* progname;
 /** @brief filenamePrefix const char*: the filename prefix used by this protocol */
-const char* filenamePrefix = "file=\0";
+const char* filenameKey = "file=\0";
 /** @brief lengthPrefix const char*: file length prefix used by this protcol */
-const char* lengthPrefix = "len=\0";
+const char* lengthKey = "len=\0";
 
 // ------------------------------------------------------------- functions --
 static void errorMessage(const char* userMessage, const char* errorMessage, ressourcesContainer* ressources);
-
 static void usage(FILE* stream, const char* cmnd, int exitcode);
-
 static int printAddress(struct sockaddr* sockaddr);
-
 static bool writeToDisk(long length, ressourcesContainer* ressources);
-
 static long parseIntfromString(const char* buffer);
-
 static int parseField(char* fieldBuffer, char** filename);
-
 static void closeAllRessources(ressourcesContainer* ressources);
 
 /**
@@ -76,14 +73,16 @@ static void closeAllRessources(ressourcesContainer* ressources);
  * @param argv char**: pointerarray with the given arguments
  * @return int: either 0 in case of success of 1 in case of failure
  */
+
+// --------------------------------------------------------------- main --
 int main(int argc, const char* argv[]) {
     struct addrinfo* serveraddr, * currentServerAddr;    // Returnvalue of getaddrinfo(), currentAddr used for loop
     struct addrinfo hints;								 // Hints struct for the addr info function
     char statusBuffer[STATUSLENGTH];					 // Buffer for the Status
-    int extractedStatus;                                 // integer holds status
+    int statusValue;                                 // integer holds status
     char filenameBuffer[MAXFILENAMELENGTH];				 // Buffer for File name max 255 Chars
     char lengthBuffer[MAXFILELENGTH];                // Max size of length
-    long parsedFileLength;
+    long fileLengthValue;
 
     //--------------------------------------------------
     //----------allocate the ressources struct----------
@@ -218,7 +217,7 @@ int main(int argc, const char* argv[]) {
     //---------------------------------------------------------------------------------------------------
     //----------open Filepointer to write/read (filepointerClientRead & filepointerClientWrite)----------
     //---------------------------------------------------------------------------------------------------
-    //fdopen returns NULL if failed
+    // fdopen returns NULL if failed
     // use the copy of the duplicated field descriptor for both file pointer
     ressources->filepointerClientRead = fdopen(ressources->socketDescriptorRead, "r");
     ressources->filepointerClientWrite = fdopen(ressources->socketDescriptorWrite, "w");
@@ -277,36 +276,40 @@ int main(int argc, const char* argv[]) {
     }
     // Get status
     if (fgets(statusBuffer, STATUSLENGTH, ressources->filepointerClientRead) ==
-            NULL) {     // fgets uses read descriptor
+        NULL) {     // fgets uses read descriptor
         errorMessage("Could not read from server: ", strerror(errno), ressources);
     }
-    // try to find status, the beginning of the protocol
-    char* statusPlain;
-    int status = parseField(statusBuffer, &statusPlain);
+    //---------------------------------------------------------------------------------------------------
+    //--------------------------- read status field only once -------------------------------------------
+    //---------------------------------------------------------------------------------------------------
+    char* statusValueRaw;
+    int status = parseField(statusBuffer, &statusValueRaw);
     if (status == -1) {
         LINEOUTPUT;
         errorMessage("Error occurred during parsing the status field", strerror(errno), ressources);
     }
     if (ressources->verbose == 1) {
         LINEOUTPUT;
-        fprintf(stdout, "Status buffer: %s Status plain: %s\n", statusBuffer, statusPlain);
+        fprintf(stdout, "Status buffer: %s Status plain: %s\n", statusBuffer, statusValueRaw);
     }
-    extractedStatus = parseIntfromString(statusPlain);
-    if (extractedStatus == -1) {
+    statusValue = parseIntfromString(statusValueRaw);
+    if (statusValue == -1) {
         LINEOUTPUT;
         errorMessage("Error occurred during converting the file length", strerror(errno), ressources);
     }
     if (ressources->verbose == 1) {
         LINEOUTPUT;
-        fprintf(stdout, "Status is: %d\n", extractedStatus);
+        fprintf(stdout, "Status is: %d\n", statusValue);
     }
-    free(statusPlain);
-    // Loop till finding EOF
-    // bool isEOF = false;
+    free(statusValueRaw);
+
+    //---------------------------------------------------------------------------------------------------
+    //------------------ begin read field content loop (filenname + file length) ------------------------
+    //---------------------------------------------------------------------------------------------------
     bool isEOF = false;
     do {
         int status = 0;
-        // get filename from Server
+        // get filenameValue from Server
         if (fgets(filenameBuffer, MAXFILENAMELENGTH, ressources->filepointerClientRead) == NULL) {
             if (feof(ressources->filepointerClientRead)) {
                 isEOF = true;
@@ -319,7 +322,7 @@ int main(int argc, const char* argv[]) {
                 errorMessage("Could not read from server: ", strerror(errno), ressources);
             }
         }
-        // get filelength from server
+        // get filelength Value from server
         if (fgets(lengthBuffer, MAXFILELENGTH, ressources->filepointerClientRead) == NULL) {
             if (feof(ressources->filepointerClientRead)) {
                 isEOF = true;
@@ -332,13 +335,13 @@ int main(int argc, const char* argv[]) {
                 errorMessage("Could not read from server: ", strerror(errno), ressources);
             }
         }
-        // check if the filename has the correct prefix
-        if (strncmp(filenameBuffer, filenamePrefix, strlen(filenamePrefix)) != 0) {
-            fprintf(stderr, "filenamePrefix: %s\n", filenameBuffer);
-            errorMessage("No filenamePrefix given.", strerror(errno), ressources);
+        // check if the filenameValue has the correct prefix
+        if (strncmp(filenameBuffer, filenameKey, strlen(filenameKey)) != 0) {
+            fprintf(stderr, "filenameKey: %s\n", filenameBuffer);
+            errorMessage("No filenameKey given.", strerror(errno), ressources);
         }
-        char* fileLength = NULL;
-        status = parseField(lengthBuffer, &fileLength);
+        char* fileLengthValueRaw = NULL;
+        status = parseField(lengthBuffer, &fileLengthValueRaw);
         if (ressources->verbose == 1) {
             LINEOUTPUT;
             fprintf(stdout, "filelength: %s", lengthBuffer);
@@ -347,41 +350,41 @@ int main(int argc, const char* argv[]) {
             errorMessage("A error occurred during file length parsing\n", strerror(errno), ressources);
         }
         // parse the file length from the incoming buffer
-        parsedFileLength = parseIntfromString(fileLength);
-        if (parsedFileLength == -1) {
+        fileLengthValue = parseIntfromString(fileLengthValueRaw);
+        if (fileLengthValue == -1) {
             errorMessage("A error occurred during converting int\n", strerror(errno), ressources);
         }
         if (ressources->verbose == 1) {
             LINEOUTPUT;
-            fprintf(stdout, "File length buffer: %s,  length: %ld\n", lengthBuffer, parsedFileLength);
+            fprintf(stdout, "File length buffer: %s,  length: %ld\n", lengthBuffer, fileLengthValue);
         }
-        // extract the filenamePrefix from the field
-        char* filename = NULL;
+        // extract the filenameKey from the field
+        char* filenameValue = NULL;
 
         // check if the file length has the correct prefix
-        if (strncmp(lengthBuffer, lengthPrefix, strlen(lengthPrefix)) != 0) {
+        if (strncmp(lengthBuffer, lengthKey, strlen(lengthKey)) != 0) {
             errorMessage("No file length given.", strerror(errno), ressources);
         }
         // parse the file length
-        status = parseField(filenameBuffer, &filename);
+        status = parseField(filenameBuffer, &filenameValue);
         if (status == -1) {
-            errorMessage("A error occurred during filenamePrefix parsing", strerror(errno), ressources);
+            errorMessage("A error occurred during filenameKey parsing", strerror(errno), ressources);
         }
         if (ressources->verbose == 1) {
             LINEOUTPUT;
-            fprintf(stdout, "Filename: %s\n", filename);
+            fprintf(stdout, "Filename: %s\n", filenameValue);
         }
         // open filepointer for disk
-        ressources->filepointerClientWriteDisk = fopen(filename, "w");
+        ressources->filepointerClientWriteDisk = fopen(filenameValue, "w");
 
         // we don't need the pointer anymore free it
-        free(fileLength);
-        fileLength = NULL;
-        free(filename);
-        filename = NULL;
+        free(fileLengthValueRaw);
+        fileLengthValueRaw = NULL;
+        free(filenameValue);
+        filenameValue = NULL;
 
         /* Call the write function */
-        isEOF = writeToDisk(parsedFileLength, ressources);
+        isEOF = writeToDisk(fileLengthValue, ressources);
     } while (!isEOF);
 
     //---------------------------------------------------------------------------------------------------
@@ -402,7 +405,7 @@ int main(int argc, const char* argv[]) {
 
     // Everything went well, deallocate the ressources struct
     free(ressources);
-    return extractedStatus;
+    return statusValue;
 }
 
 /**
@@ -429,6 +432,9 @@ bool writeToDisk(long length, ressourcesContainer* ressources) {
         LINEOUTPUT;
         fprintf(stdout, "Begin the read process.\n");
     }
+    //---------------------------------------------------------------------------------------------------
+    //------------------ read and write file in block (chunk size) ------- ------------------------------
+    //---------------------------------------------------------------------------------------------------
 
     for (int i = 0; i < cycles && isEOF == false; i++) {
         readBytes += fread(partioned_read_array, 1, CHUNK, ressources->filepointerClientRead);
@@ -456,7 +462,10 @@ bool writeToDisk(long length, ressourcesContainer* ressources) {
         }
     }
 
-    /* Handle the rest , only when EOF is not set*/
+    //---------------------------------------------------------------------------------------------------
+    //------------------------- handle the rest if EOF is not set ---------------------------------------
+    //---------------------------------------------------------------------------------------------------
+
     if (isEOF == false) {
         int lengthRest = length - readBytes;
         if (ressources->verbose == 1) {
@@ -498,6 +507,9 @@ bool writeToDisk(long length, ressourcesContainer* ressources) {
         }
     }
 
+    //---------------------------------------------------------------------------------------------------
+    //------------------ close Filepointer to disk write (filepointerClientWriteDisk) -------------------
+    //---------------------------------------------------------------------------------------------------
     fflush(ressources->filepointerClientWriteDisk);
     fclose(ressources->filepointerClientWriteDisk);  // close the file
     ressources->filepointerClientWriteDisk = NULL;
@@ -586,9 +598,9 @@ static long parseIntfromString(const char* buffer) {
  */
 static int parseField(char* fieldBuffer, char** filename) {
     int a = 0, b = 0, c = 0;
-    // find the '=' sign
+    // find the asssignment sign
     while (fieldBuffer[a]) {
-        if (fieldBuffer[a++] == '=') { break; }
+        if (fieldBuffer[a++] == FIELD_ASSIGNMENT) { break; }
     }
     // find the '\0'b
     b = a;
@@ -599,16 +611,19 @@ static int parseField(char* fieldBuffer, char** filename) {
     // create a new array, b - a is enough because of '\n'
     filenameTemp = malloc((b - a) * sizeof(char));
     if (filenameTemp == NULL) {
-        LINEOUTPUT;
-        fprintf(stderr, "%s: error allocation memory: %s", progname, strerror(errno));
+        fprintf(stderr, "%s: error allocation memory: %s\n", progname, strerror(errno));
         return -1;
     }
-    //copy array -till the delimiter '\n' is found
-    while (fieldBuffer[a] != FIELD_DELIMITER) {
+    //copy array -till the delimiter '\n' is found, or till '\0' is found to aviod seg fault
+    while ((fieldBuffer[a] != FIELD_DELIMITER) && (fieldBuffer[a])) {
         filenameTemp[c++] = fieldBuffer[a++];
     }
-
-    // Termination of the filenamePrefix
+    // Check if Field delimiter is found, if not error occured.
+    if (b == a) {
+        fprintf(stderr, "%s: no field delimiter is found\n", progname);
+        return -1;
+    }
+    // Termination of the filenameKey
     filenameTemp[c] = '\0';
 
     *filename = filenameTemp;
