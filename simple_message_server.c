@@ -1,5 +1,7 @@
 /**
+ * @file simple_message_server.c
  * @author Valentin Platzgummer - ic17b096
+ * @author Lara Kammerer - ic17b001
  * @date 18.11.18
  *
  * @brief Implementation of a simple server Application to work with a client
@@ -19,61 +21,48 @@
 #include <netdb.h>
 
 // --------------------------------------------------------------- defines --
-/**
- * @brief Line output. note all log notes must be on stderr, because stdout
- * redirected to the socket
- */
+/** @brief Line output. note all log notes must be on stderr, because stdout
+ * redirected to the socket */
 #define LINEOUTPUT fprintf(stdout, "[%s, %s, %d]: ",  __FILE__, __func__, __LINE__)
 
-/**
- * @brief maximal amount of requests on listening socket
- */
+/** @brief maximal amount of requests on listening socket */
 #define BACKLOG 5
-/**
- * @brief absolute path to the business logic
- */
+/** @brief absolute path to the business logic */
 #define LOGICS_PATH "/usr/local/bin/simple_message_server_logic"
-/**
- * @brief name of the business logic application called in this function
- */
+/** @brief name of the business logic application called in this function */
 #define LOGICS_NAME "simple_message_server_logic"
 
 
 // -------------------------------------------------------------- typedefs --
-/**
- * @brief Struct holds all needed ressources, both file descriptors
- */
+/** @brief Struct holds all needed ressources, both file descriptors */
 typedef struct ressourcesContainer {
     int fd_socket_listen;        /**< File descriptor for the listening socket */
     int fd_socket_connected;     /**< File descriptor for the connected socket */
     const char* progname;        /**< Progamm name argv[0] */
 } ressources;
 
-
 // ------------------------------------------------------------- functions --
 static void errorMessage(char* userMessage, char* errorMessage, ressources serverRessources);
-
 static void usage(FILE* stream, const char* cmnd, int exitcode);
-
 static void closeRessources(ressources res);
-
 static void printAddress(struct sockaddr_in sockaddr);
-
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port, int* verbose);
-
 static void sigchild_handler(int s);
 
-
+// ------------------------------------------------------------------- main --
 /**
- * @brief main function of the server implementation. Server works as a spawning server. Every connenction is handled
- * by a child process
+ * @brief main function of the server implementation. Server works as a spawning server. Every connection is handled
+ * by a child process. The childs execute the business logic which is provided by a external file.
  * @param argc int: number of incoming paramters
  * @param argv char**: pointerarray with all incoming paramters
  * @return nothing, does not stop
  */
 int main(int argc, char* const* argv) {
 
-    // file descriptor socket server
+    //---------------------------------------------------------------------------------------------------
+    //------------------------------- initialize the necessary structs ----------------------------------
+    //---------------------------------------------------------------------------------------------------
+
     ressources serverRessources;
     serverRessources.fd_socket_listen = -1; // initialize the file descriptors
     serverRessources.fd_socket_connected = -1;
@@ -85,7 +74,10 @@ int main(int argc, char* const* argv) {
     int verbose = 0;
 
     evaluateParameters(argc, argv, &port, &verbose);
-    // SOCKET()
+    //---------------------------------------------------------------------------------------------------
+    //------------------------------- create server socket socket for listening -------------------------
+    //---------------------------------------------------------------------------------------------------
+
     serverRessources.fd_socket_listen = socket(AF_INET, SOCK_STREAM, 0);
     if (serverRessources.fd_socket_listen < 0) {
         errorMessage("Could not create a socket: ", strerror(errno), serverRessources);
@@ -107,7 +99,9 @@ int main(int argc, char* const* argv) {
         errorMessage("Reuse address failed", strerror(errno), serverRessources);
     }
 
-    // BIND()
+    //---------------------------------------------------------------------------------------------------
+    //---------------------------- bind server to socket  -----------------------------------------------
+    //---------------------------------------------------------------------------------------------------
     if (bind(serverRessources.fd_socket_listen, (struct sockaddr*) &server_add, sizeof(server_add)) < 0) {
         errorMessage("Could not bind to socket: ", strerror(errno), serverRessources);
     }
@@ -133,7 +127,9 @@ int main(int argc, char* const* argv) {
     // Endless loop, Server must be killed manually
     socklen_t len_client = sizeof(client_add);
 
-    // start the spawning server routine, main loop
+    //---------------------------------------------------------------------------------------------------
+    //----------------------- start the spawning server routine, main loop ------------------------------
+    //---------------------------------------------------------------------------------------------------
     while (1) {
         serverRessources.fd_socket_connected = accept(serverRessources.fd_socket_listen, (struct sockaddr*) &client_add,
                                                       &len_client);
@@ -183,11 +179,10 @@ int main(int argc, char* const* argv) {
             serverRessources.fd_socket_listen = -1;
 
             // *** Do the exec here ***
-
             close(serverRessources.fd_socket_connected);
             int status = execl(LOGICS_PATH, LOGICS_NAME, NULL);
             if (status == -1) {
-                errorMessage("Could not execute bussiness logic", "error in execl", serverRessources);
+                errorMessage("Could not execute business logic", "error in execl", serverRessources);
                 exit(EXIT_FAILURE);
             }
 
@@ -221,9 +216,9 @@ static void sigchild_handler(int s) {
 
 /**
  * @brief Parameter check for the Server function.
- * @param argc int Number of incoming parameters
- * @param argv char* Pointerarray containing all parametres
- * @param port u_int16_t listening port of the server
+ * @param argc int_ Number of incoming parameters
+ * @param argv char*: Pointerarray containing all parametres
+ * @param port u_int16_t: listening port of the server
  */
 static void evaluateParameters(int argc, char* const* argv, u_int16_t* port, int* verbose) {
     int opt;
@@ -254,14 +249,13 @@ static void evaluateParameters(int argc, char* const* argv, u_int16_t* port, int
                 break;
         }
     }
-
 }
 
 /**
- * @brief Print out an error message with the given error and terminate the program
- * @param userMessage char* Message to the user
- * @param errorMessage char* errormessage from the system -> equivalent to the set errno
- * @param progname char* name of the programm argv[0]
+ * @brief Prints out an error message with the given error and terminates the program
+ * @param userMessage char*: Message to the user
+ * @param errorMessage char*: errormessage from the system -> equivalent to the set errno
+ * @param progname char*: name of the programm argv[0]
  */
 static void errorMessage(char* userMessage, char* errorMessage, ressources serverRessources) {
     fprintf(stderr, "%s: %s %s\n", serverRessources.progname, userMessage, errorMessage);
@@ -271,7 +265,7 @@ static void errorMessage(char* userMessage, char* errorMessage, ressources serve
 
 /**
  * @brief close all open ressources in on single point
- * @param res ressources struct contsining all needed ressources
+ * @param res ressources: struct contsining all needed ressources
  */
 static void closeRessources(ressources res) {
     if (res.fd_socket_connected != -1) {
@@ -285,12 +279,12 @@ static void closeRessources(ressources res) {
 }
 
 /**
- * @brief is called upon failure and displays a userinform to stderr and terminates afterwards.
- * @param stream the  stream to write the usage information to (e.g., stdout
+ * @brief is called upon failure and displays a user information to stderr or stdout and terminates afterwards.
+ * @param stream FILE*: the  stream to write the usage information to (e.g., stdout
                    or stderr).
- * @param cmnd a string containing the name of the executable  (i.e.,  the
+ * @param cmnd const char*: a string containing the name of the executable  (i.e.,  the
                    contents of argv[0]).
- * @param exitcode the  exit code to be used in the call to exit(3) for termi-
+ * @param exitcode int: the  exit code to be used in the call to exit(3) for termi-
                    nating the program.
  */
 static void usage(FILE* stream, const char* cmnd, int exitcode) {
@@ -311,9 +305,11 @@ static void printAddress(struct sockaddr_in sockaddr) {
     fprintf(stdout, "%s:%d\n", address_ip4, ntohs(sockaddr.sin_port));
 
 }
+// =================================================================== eof ==
 
-/* usage: simple_message_server option
-options:
-	-p, --port <port>
-	-h, --help
-*/
+// Local Variables:
+// mode: c
+// c-mode: k&r
+// c-basic-offset: 8
+// indent-tabs-mode: t
+// End:
