@@ -689,14 +689,11 @@ static int printAddress(struct sockaddr* sockaddr) {
     }
     return 0;
 }
+// =================================================================== eof ==
 
-/* usage: simple_message_client options
-options:
-	-s, --server <server>   full qualified domain name or IP address of the server
-	-p, --port <port>       well-known port of the server [0..65535]
-	-u, --user <name>       name of the posting user
-	-i, --image <URL>       URL pointing to an image of the posting user
-	-m, --message <message> message to be added to the bulletin board
-	-v, --verbose           verbose output
-	-h, --help
-*/
+// Local Variables:
+// mode: c
+// c-mode: k&r
+// c-basic-offset: 8
+// indent-tabs-mode: t
+// End:
