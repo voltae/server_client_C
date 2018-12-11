@@ -64,8 +64,8 @@ debug_client: $(CLIENTOBJECT)
 .PHONY: clean
 clean:
 	rm -rf *.o
-	rm -f client
-	rm -f server
+	rm -f simple_message_client
+	rm -f simple_message_server
 
 .PHONY: distclean
 
